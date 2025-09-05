@@ -26,7 +26,7 @@ class Block:
             pygame.draw.line(screen, (0, 0, 0), (50, 50), (318, 50))
             # pygame.draw.line(screen, colour, start_pos_x-y, end_posx-y, width = 1)
     
-    def print(self, screen, tetrominoe_type_num, future_type_num, merge_total, level, font, tet = None):
+    def print(self, screen, tetrominoe_type_num, future_type_num, merge_total, level, font, score, tet = None):
 
         # draws it in the terminal
         if True:
@@ -65,6 +65,10 @@ class Block:
             # draws the current level
             type_msg(screen, font, 450, 250, "LEVEL", (255, 255, 255))
             type_msg(screen, font, 465, 280, level, (255, 255, 255))
+
+            # draws the score
+            type_msg(screen, font, 450, 50, "SCORE", (255, 255, 255))
+            type_msg(screen, font, 450, 150, score, (255, 255, 255))
 
             # draws the number of lines
             type_msg(screen, font, 450, 320, "LINES", (255, 255, 255))
@@ -118,35 +122,74 @@ class Block:
                     block1.buf[yp + y][xp + x] = ptrominoe[y][x]
         return block1
     
-    def merge(self, grid, width, merged_total):
+    def merge(self, grid, width, merged_total, score, level, merge_combo, just_began):
 
         merge_happened = False
         merged = 0
         num = 0
         reset_num = False
+        for _ in range(0, 4):
+            num = 0
+            for row in grid:
+                if reset_num:
+                    num = 0
+                    reset_num = False
+                num = num + 1
+                if row.count(0) == 0:
+                    merge_happened = True
+                    grid[num - 1] = [0] * width
+                    merged = merged + 1
+                    for _ in range(0, merged):
+                        for row2 in range(17, -1, -1):
+                            if row2 == num - 1:
+                                if row2 == 0:
+                                    grid[row2] = [0] * width
+                                else:
+                                    grid[row2] = grid[row2 -1]
+                                num = num - 1
+                                reset_num = True
 
-        for row in grid:
-            if reset_num:
-                num = 0
-                reset_num = False
-            num = num + 1
-            merged = 0
-            if row.count(0) == 0:
-                merge_happened = True
-                grid[num - 1] = [0] * width
-                merged = merged + 1
-                merged_total = merged_total + 1
-                for _ in range(0, merged):
-                    for row2 in range(17, -1, -1):
-                        if row2 == num - 1:
-                            if row2 == 0:
-                                grid[row2] = [0] * width
-                            else:
-                                grid[row2] = grid[row2 -1]
-                            num = num - 1
-                            reset_num = True
+        # (hopefully) fixes a really wierd bug 
+        if merged == 3:
+            merged = 2
+        elif merged == 6:
+            merged = 3
+        elif merged == 10:
+            merged = 4
 
-        return grid, merge_happened, merged_total
+        # increases score for each number of merges
+        if merged == 1:
+            score = score + (40 * (level + 1))
+        elif merged == 2:
+            score = score + (100 * (level + 1))
+        elif merged == 3:
+            score = score + (300 * (level + 1))
+        elif merged == 4:
+            score = score + (1200 * (level + 1))
+
+        # increases score for a combo
+        if merged > 0:
+            merge_combo = merge_combo + 1
+        if merge_combo > 1 and merge_happened:
+            score = score + (50 * merge_combo * level)
+
+        # increases score for a perfect clear
+        if not just_began:
+            empty = True
+            for row in grid:
+                if row.count(0) != 10:
+                    empty = False
+            if empty:
+                if merged == 1:
+                    score = score + (800 * (level + 1))
+                elif merged == 2:
+                    score = score + (1200 * (level + 1))
+                elif merged == 3:
+                    score = score + (1800 * (level + 1))
+                elif merged == 4:
+                    score = score + (2000 * (level + 1))
+
+        return grid, merge_happened, merged_total + merged, score, merge_combo
 
 class Array:
     def __init__(self, tetroid_type_num, future_type_num, rotate, reset, d, a):
@@ -418,6 +461,7 @@ def main():
         SETTING_STATE_TWO = 3
         PLAYING_STATE = 4
         LOSE_STATE = 5
+        PAUSED_STATE = 6
         state = LOADING_STATE
         FONT = pygame.font.Font("./Grand9K Pixel.ttf", 18)
         LARGER_FONT = pygame.font.Font("./Grand9K Pixel.ttf", 25)
@@ -440,8 +484,11 @@ def main():
         p = Array(1, 1, 0, True, 1, 3)
         merge_happened = False
         future_type_num = -1
+        merge_combo = 0
+        just_began = True
 
         running = True
+        score = 0
 
     # while loop
     while running:
@@ -493,6 +540,9 @@ def main():
                             rotate_bool = True
                             if rotate < 0:
                                 rotate = 3
+                    
+                    if event.key == pygame.K_RETURN:
+                        state = PAUSED_STATE
 
                     if event.key == pygame.K_9:
                         state = LOSE_STATE
@@ -511,6 +561,11 @@ def main():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
                         return_pressed = True
+            if state == PAUSED_STATE:
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_LSHIFT:
+                        state = PLAYING_STATE
+
         if show_screen:
             screen.fill((196, 207, 161))
         if state == LOADING_STATE:
@@ -523,7 +578,7 @@ def main():
             type_msg(screen, FONT, screen_width / 2, screen_height / 1.1, "All Rights Reserved.", (65, 65, 65))
             if start:
                 state = START_BUTTON_STATE
-        elif state == START_BUTTON_STATE:
+        if state == START_BUTTON_STATE:
             screen.fill((196, 207, 161))
             screen.blit(logo, (screen_width / 2 - 225, 0))
             display_square(screen, 0, screen_height / 1.5, (255, 255, 255), screen_width, screen_height / 3)
@@ -535,25 +590,16 @@ def main():
                 display_polygon(screen, (0, 0, 0), [(80, 485), (80, 515), (105, 500)])
             else:
                 display_polygon(screen, (0, 0, 0), [(480, 485), (480, 515), (505, 500)])
-        elif state == SETTING_STATE_ONE:
-            if not two_players:
-                type_msg(screen, LARGER_FONT, 400, 300, "One player!", (0, 0, 0))
-            else:
-                type_msg(screen, LARGER_FONT, 400, 300, "Two players!", (0, 0, 0))
-        elif state == SETTING_STATE_TWO:
-            if not two_players:
-                type_msg(screen, LARGER_FONT, 400, 300, "One player!", (0, 0, 0))
-            else:
-                type_msg(screen, LARGER_FONT, 400, 300, "Two players!", (0, 0, 0))
-        elif state == PLAYING_STATE:
+        if state == SETTING_STATE_ONE:
+            None
+        if state == SETTING_STATE_TWO:
+            None
+        if state == PLAYING_STATE:
             show_screen = False
-            if not two_players:
-                None
-                # type_msg(screen, LARGER_FONT, 400, 300, "One player!", (0, 0, 0))
-            else:
-                None
-                # type_msg(screen, LARGER_FONT, 400, 300, "Two players!", (0, 0, 0))
             if not falling:
+                just_began = False
+                if not merge_happened:
+                    merge_combo = 0
                 tetroid_type_num, future_type_num = place_block(future_type_num)
                 rotate = 0
                 rotate_bool = True
@@ -571,18 +617,39 @@ def main():
                         b1 = b1.add_falling_grid(b1, p.tetrominoe, p.y, p.x)
                         falling = False
                 screen.fill((0, 0, 0))
-                b1.print(screen, tetroid_type_num, future_type_num, merge_num, level, LARGER_FONT, p)
+                b1.print(screen, tetroid_type_num, future_type_num, merge_num, level, LARGER_FONT, score, p)
                 merge_happened = False
             
-            b1.buf, merge_happened, merge_num = b1.merge(b1.buf, 10, merge_num)
-        elif state == LOSE_STATE:
+            b1.buf, merge_happened, merge_num, score, merge_combo = b1.merge(b1.buf, 10, merge_num, score, level, merge_combo, just_began)
+            num_filled = 0
+            for row in range(1, 3):
+                for col in range(3, 6):
+                    if b1.buf[row][col] > 0:
+                        num_filled = num_filled + 1
+            if num_filled > 4:
+                state = LOSE_STATE
+        if state == LOSE_STATE:
             screen.fill((255, 255, 255))
             type_msg(screen, REALLY_BIG_FONT, 400, 150, "GAME OVER", (0, 0, 0))
             type_msg(screen, KINDA_BIG_FONT, 300, 350, "PLEASE", (0, 0, 0))
             type_msg(screen, KINDA_BIG_FONT, 350, 420, "TRY", (0, 0, 0))
             type_msg(screen, KINDA_BIG_FONT, 400, 490, "AGAIN", (0, 0, 0))
             if return_pressed:
+                b1 = Block(10, 18)
+                falling = False
+                future_type_num = -1
+                merge_num = 0 
+                level = 0
+                score = 0
+                just_began = True
                 state = START_BUTTON_STATE
+        if state == PAUSED_STATE:
+            screen.fill((255, 255, 255))
+            type_msg(screen, REALLY_BIG_FONT, 400, 100, "HIT", (0, 0, 0))
+            type_msg(screen, REALLY_BIG_FONT, 400, 200, "SHIFT", (0, 0, 0))
+            type_msg(screen, REALLY_BIG_FONT, 400, 300, "TO", (0, 0, 0))
+            type_msg(screen, REALLY_BIG_FONT, 400, 400, "CONTINUE", (0, 0, 0))
+            type_msg(screen, REALLY_BIG_FONT, 400, 500, "GAME", (0, 0, 0))
 
         pygame.display.flip()
         clock.tick(30)
