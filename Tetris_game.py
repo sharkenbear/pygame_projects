@@ -556,7 +556,7 @@ def main():
                     if event.key == pygame.K_DOWN:
                         timer_max = 1
                 else:
-                    timer_max = 30
+                    timer_max = 30 - level * 2
             if state == LOSE_STATE:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
