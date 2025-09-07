@@ -11,8 +11,9 @@ class Grid:
         self.buf = [[0] * width for _ in range(height)]
         # sets the initial snake and apple position
         # self.buf[y][x] y is how far down, x is how far along
-        self.buf[7][2] = 1
-        self.buf[7][3] = 2
+        self.buf[7][1] = 1
+        self.buf[7][2] = 2
+        self.buf[7][3] = 3
         self.buf[7][4] = -2
         self.buf[7][12] = -3
     
@@ -42,11 +43,11 @@ class Grid:
                     draw_rect(screen, column * 45 + 15, row * 45 + 100, (231, 71, 29), 45, 45)
 
     # decreases the number of all snake body parts in the grid
-    def decrease_grid(self, grid1):
+    def decrease_grid(self, grid):
         for row in range(0, 15):
             for column in range(0, 17):
-                if grid1[row][column] > 0:
-                    grid1[row][column] = grid1[row][column] - 1
+                if grid[row][column] > 0:
+                    grid[row][column] = grid[row][column] - 1
 
     # moves the snek along
     def move_along(self, direction, grid1, num_eaten, t, input_):
@@ -74,55 +75,138 @@ class Grid:
                         if direction == RIGHT_DIRECTION:
                             # if snake head is not at the end, or one ahead of snake is not an apple or an empty tile, returns that snake has crashed
                             if grid1.buf[row][col] == -2:
+
+                                # if one ahead is a body part (not 0 or -3, a apple) then return that the snake has crashed
                                 if col == 16 or (grid1.buf[row][col + 1] != 0 and grid1.buf[row][col + 1] != -3):
-                                    return grid1, has_eaten, True, direction
-                                elif grid1.buf[row][col + 1] == 0:
+                                    return grid1, has_eaten, True, direction, False
+                                    
+                                # if one ahead is not a apple, therfore it is empty:
+                                if grid1.buf[row][col + 1] != -3:
                                     self.decrease_grid(grid1.buf)
-                                    grid1.buf[row][col + 1] = -2
-                                    grid1.buf[row][col] = num_eaten + 2
-                                    return grid1, has_eaten, False, direction
-                                elif grid1.buf[row][col + 1] == -3:
-                                    print("apple")
+
+                                # if one ahead is a apple:
+                                if grid1.buf[row][col + 1] == -3:
+
+                                    # checkes if grid is full of snake, and returns that the game has been won if it is
+                                    if self.check_full(grid1.buf):
+                                        return grid1, has_eaten, False, direction, True
+
+                                    # makes snake longer and spawns a new apple
+                                    has_eaten = True
+                                    grid1.buf = self.spawn_apple(grid1.buf)
+
+                                grid1.buf[row][col + 1] = -2
+                                grid1.buf[row][col] = num_eaten + 3
+                            
+                                return grid1, has_eaten, False, direction, False
 
                         elif direction == LEFT_DIRECTION:
                             # if snake head is not at the end, or one ahead of snake is not an apple or an empty tile, returns that snake has crashed
                             if grid1.buf[row][col] == -2:
-                                if  col == 0 or (grid1.buf[row][col - 1] != 0 and grid1.buf[row][col - 1] != -3):
-                                    return grid1, has_eaten, True, direction
-                                elif grid1.buf[row][col - 1] == 0:
+
+                                # if one ahead is a body part (not 0 or -3, a apple) then return that the snake has crashed
+                                if col == 0 or (grid1.buf[row][col - 1] != 0 and grid1.buf[row][col - 1] != -3):
+                                    return grid1, has_eaten, True, direction, False
+                                    
+                                # if one ahead is not a apple, therfore it is empty:
+                                if grid1.buf[row][col - 1] != -3:
                                     self.decrease_grid(grid1.buf)
-                                    grid1.buf[row][col - 1] = -2
-                                    grid1.buf[row][col] = num_eaten - 2
-                                    return grid1, has_eaten, False, direction
-                                elif grid1.buf[row][col - 1] == -3:
-                                    print("apple")
+
+                                # if one ahead is a apple:
+                                if grid1.buf[row][col - 1] == -3:
+
+                                    # checkes if grid is full of snake, and returns that the game has been won if it is
+                                    if self.check_full(grid1.buf):
+                                        return grid1, has_eaten, False, direction, True
+
+                                    # makes snake longer and spawns a new apple
+                                    has_eaten = True
+                                    grid1.buf = self.spawn_apple(grid1.buf)
+
+                                grid1.buf[row][col - 1] = -2
+                                grid1.buf[row][col] = num_eaten + 3
+                            
+                                return grid1, has_eaten, False, direction, False
 
                         elif direction == DOWN_DIRECTION:
                             # if snake head is not at the end, or one ahead of snake is not an apple or an empty tile, returns that snake has crashed
                             if grid1.buf[row][col] == -2:
+
+                                # if one ahead is a body part (not 0 or -3, a apple) then return that the snake has crashed
                                 if row == 14 or (grid1.buf[row + 1][col] != 0 and grid1.buf[row + 1][col] != -3):
-                                    return grid1, has_eaten, True, direction
-                                elif grid1.buf[row + 1][col] == 0:
+                                    return grid1, has_eaten, True, direction, False
+                                    
+                                # if one ahead is not a apple, therfore it is empty:
+                                if grid1.buf[row + 1][col] != -3:
                                     self.decrease_grid(grid1.buf)
-                                    grid1.buf[row + 1][col] = -2
-                                    grid1.buf[row][col] = num_eaten + 2
-                                    return grid1, has_eaten, False, direction
-                                elif grid1.buf[row + 1][col] == -3:
-                                    print("apple")
+
+                                # if one ahead is a apple:
+                                if grid1.buf[row + 1][col] == -3:
+
+                                    # checkes if grid is full of snake, and returns that the game has been won if it is
+                                    if self.check_full(grid1.buf):
+                                        return grid1, has_eaten, False, direction, True
+
+                                    # makes snake longer and spawns a new apple
+                                    has_eaten = True
+                                    grid1.buf = self.spawn_apple(grid1.buf)
+
+                                grid1.buf[row + 1][col] = -2
+                                grid1.buf[row][col] = num_eaten + 3
+                            
+                                return grid1, has_eaten, False, direction, False
+                        
                         elif direction == UP_DIRECTION:
                             # if snake head is not at the end, or one ahead of snake is not an apple or an empty tile, returns that snake has crashed
                             if grid1.buf[row][col] == -2:
-                                if row == 0 or (grid1.buf[row - 1][col] != 0 and grid1.buf[row - 1][col] != -3):
-                                    return grid1, has_eaten, True, direction
-                                elif grid1.buf[row - 1][col] == 0:
-                                    self.decrease_grid(grid1.buf)
-                                    grid1.buf[row - 1][col] = -2
-                                    grid1.buf[row][col] = num_eaten + 2
-                                    return grid1, has_eaten, False, direction
-                                elif grid1.buf[row - 1][col] == -3:
-                                    print("apple")
 
-        return grid1, False, False, direction
+                                # if one ahead is a body part (not 0 or -3, a apple) then return that the snake has crashed
+                                if row == 0 or (grid1.buf[row - 1][col] != 0 and grid1.buf[row - 1][col] != -3):
+                                    return grid1, has_eaten, True, direction, False
+                                    
+                                # if one ahead is not a apple, therfore it is empty:
+                                if grid1.buf[row - 1][col] != -3:
+                                    self.decrease_grid(grid1.buf)
+
+                                # if one ahead is a apple:
+                                if grid1.buf[row - 1][col] == -3:
+
+                                    # checkes if grid is full of snake, and returns that the game has been won if it is
+                                    if self.check_full(grid1.buf):
+                                        return grid1, has_eaten, False, direction, True
+
+                                    # makes snake longer and spawns a new apple
+                                    has_eaten = True
+                                    grid1.buf = self.spawn_apple(grid1.buf)
+
+                                grid1.buf[row - 1][col] = -2
+                                grid1.buf[row][col] = num_eaten + 3
+                            
+                                return grid1, has_eaten, False, direction, False
+
+        return grid1, False, False, direction, False
+
+    # spawns in a new apple
+    def spawn_apple(self, grid):
+        pos_x, pos_y = self.find_spot(grid)
+        grid[pos_x][pos_y] = -3
+        return grid
+
+    def find_spot(self, grid):
+        new_pos_col = random.randint(0, 16)
+        new_pos_row = random.randint(0, 14)
+        if grid[new_pos_row][new_pos_col] != 0:
+            new_pos_row, new_pos_col = self.find_spot(grid)
+        return new_pos_row, new_pos_col
+
+    # checks if the grid is completly filled
+    def check_full(self, grid):
+        for row in range(0, 17):
+            for column in range(0, 15):
+                if grid[row][column] == 0:
+                    return False
+
+        return True
 
 #  draws a rectange on the screen
 def draw_rect(screen, x, y, colour, size_x, size_y):
@@ -155,8 +239,9 @@ def main():
         # defines the screen, where all things get displayed
         screen_length = 800
         screen = pygame.display.set_mode((screen_length, screen_length))
-        # defines the font
+        # defines the fonts
         FONT = pygame.font.SysFont("arial", 35)
+        BIG_FONT = pygame.font.SysFont("arial", 75)
         # defines the rectangle that is the start button
         start_btn = pygame.Rect((325, 475, 150, 50))
         # defines the grid
@@ -242,24 +327,29 @@ def main():
                 t = t + 1
                 if t > 4:
                     t = 0
-            g1, has_eaten, did_crash, direction = g1.move_along(direction, g1, num_eaten, t, input_)    
+            g1, has_eaten, did_crash, direction, has_won = g1.move_along(direction, g1, num_eaten, t, input_)    
             if did_crash:
                 state = LOSE_STATE
             elif has_eaten:
                 num_eaten = num_eaten + 1
+            elif has_won:
+                state = WIN_STATE
+            
+            # draws the score and the grid
+            draw_rect(screen, 25, 25, (231, 71, 29), 50, 50)
+            type_msg(screen, FONT, 125, 50, num_eaten, (255, 255, 255))
             g1.draw_grid(screen)
             
-            # WORK IN PROGRESS!
         if state == LOSE_STATE:
             print("you lose...")
             g1 = Grid(17, 15)
             direction = NOWHERE_DIRECTION
             input_ = NOWHERE_DIRECTION
+            num_eaten = 0
             state = START_STATE
-            # WORK IN PROGRESS!
+
         if state == WIN_STATE:
-            None
-            # WORK IN PROGRESS!
+            type_msg(screen, BIG_FONT, 400, 400, "You win!", (0, 255, 255))
 
         pygame.display.update()
         clock.tick(30)
