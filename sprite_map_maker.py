@@ -10,6 +10,8 @@ def display_full_grid(grid, grid_length, deepness, screen, steepness):
             if grid[row][col] == False:
                 if not defined:
                     true_rectxy = None
+                    # (screen, (0-8 * 20) + 25, 0-8 * 20 + 15, the colour black, 20, 20)
+                    # draws 80 by 80 rects
                 draw_rect(screen, row*grid_length+deepness, col * grid_length + steepness, (0, 0, 0), grid_length, grid_length)
             else:
                 # draws a box around the currently selected position
@@ -24,8 +26,8 @@ def display_full_grid(grid, grid_length, deepness, screen, steepness):
 def display_side_grid(grid, grid_length, deepness, screen, steepness):
     for row in range(0, 8):
         for col in range(0, 8):
+            # draws 20 by 20 rects
             draw_rect(screen, row*grid_length+deepness, col * grid_length + steepness, grid[row][col], grid_length, grid_length)
-
 def get_grid_rects(grid, grid_length, deepness):
     for row in range(0, 8):
         for column in range(0, 8):
@@ -98,8 +100,8 @@ def main():
 
     # foldable list of general variables
     if True:
-        screen_width = 800
-        screen_height = 600
+        screen_width = 900
+        screen_height = 700
         screen = pygame.display.set_mode((screen_width, screen_height))
 
         # defines the colour slider variables      
@@ -202,7 +204,7 @@ def main():
         slider_red_pos, slider_green_pos, slider_blue_pos, current_colour = draw_colour_bar(slider_red_pos, slider_green_pos, slider_blue_pos, current_colour, mouse_pos, colour_change, screen)
 
         # draws the main grid
-        true_rectxy_tuple = display_full_grid(grid_full, full_grid_length * 9, 215, screen, 15)
+        true_rectxy_tuple = display_full_grid(grid_full, full_grid_length * 10, 215, screen, 15)
 
         # draws the grid on the side of the screen
         display_side_grid(colour_side_grid, side_grid_length * 2.5, 25, screen, 25)
