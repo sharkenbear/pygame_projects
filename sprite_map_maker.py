@@ -3,16 +3,27 @@ from icecream import ic
 
 pygame.init()
 
-def display_full_grid(grid, grid_length, deepness, screen, steepness):
+SCREEN_WIDTH = 900
+SCREEN_HEIGHT = 700
+
+NO_COLOUR = 0
+RED_COLOUR = 1
+GREEN_COLOUR = 2
+BLUE_COLOUR = 3
+
+SIDE_GRID_LENGTH = 8
+
+def display_full_grid(grid_full, grid_length, deepness, screen, steepness):
     defined = False
     for row in range(0, 8):
         for col in range(0, 8):
-            if grid[row][col] == False:
+            if grid_full[row][col] == False:
                 if not defined:
                     true_rectxy = None
                     # (screen, (0-8 * 20) + 25, 0-8 * 20 + 15, the colour black, 20, 20)
-                    # draws 80 by 80 rects
+                    # draws 80 p by 80 p rects
                 draw_rect(screen, row*grid_length+deepness, col * grid_length + steepness, (0, 0, 0), grid_length, grid_length)
+            
             else:
                 # draws a box around the currently selected position
                 defined = True
@@ -100,9 +111,7 @@ def main():
 
     # foldable list of general variables
     if True:
-        screen_width = 900
-        screen_height = 700
-        screen = pygame.display.set_mode((screen_width, screen_height))
+        screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
         # defines the colour slider variables      
         current_colour = (0, 0, 0)
@@ -123,16 +132,11 @@ def main():
         rect_grid = get_grid_rects(RECT_grid_full, RECT_full_grid_length * 9, 215)
 
         # which colour is currently selected to be changed
-        NO_COLOUR = 0
-        RED_COLOUR = 1
-        GREEN_COLOUR = 2
-        BLUE_COLOUR = 3
         colour_change = NO_COLOUR
 
         # width of the tiles in the side grid
-        side_grid_length = 8
 
-        colour_side_grid = [[(0, 0, 0)] * side_grid_length for _ in range(0, side_grid_length)]
+        colour_side_grid = [[(0, 0, 0)] * SIDE_GRID_LENGTH for _ in range(0, SIDE_GRID_LENGTH)]
 
         # defines the brush variables & pngs
         tool_selected = "brush"
@@ -207,7 +211,7 @@ def main():
         true_rectxy_tuple = display_full_grid(grid_full, full_grid_length * 10, 215, screen, 15)
 
         # draws the grid on the side of the screen
-        display_side_grid(colour_side_grid, side_grid_length * 2.5, 25, screen, 25)
+        display_side_grid(colour_side_grid, SIDE_GRID_LENGTH * 2.5, 25, screen, 25)
         # draw_brushes(screen, screen_width, brush_png, bucket_png, tool_selected)
 
         pygame.display.update()
