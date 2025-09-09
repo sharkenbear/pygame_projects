@@ -71,22 +71,25 @@ def main():
                 running = False
 
             elif event.type == pygame.KEYDOWN:
-                if chr(event.key).isdigit() and allow_digits:
-                    digits = digits + str(chr(event.key))
+                print(event.key)
+                if event.key < 11000:
+                    if chr(event.key).isdigit() and allow_digits:
+                        digits = digits + str(chr(event.key))
 
 
-                    if len(digits) == 2:
-                        allow_digits = False
-                elif event.key == pygame.K_BACKSPACE:
-                    digits = digits[0:len(digits)-1]
+                        if len(digits) == 2:
+                            allow_digits = False
+                    elif event.key == pygame.K_BACKSPACE:
+                        digits = digits[0:len(digits)-1]
+                        allow_digits = True
 
-                elif event.key == pygame.K_RETURN and len(digits) > 0:
-                    num_input = int(digits)
-                    digits = ""
-                    allow_digits = True
+                    elif event.key == pygame.K_RETURN and len(digits) > 0:
+                        num_input = int(digits)
+                        digits = ""
+                        allow_digits = True
 
-                if pygame.K_RETURN and len(digits) > 0:
-                    attempts = attempts + 1
+                    if pygame.K_RETURN and len(digits) > 0:
+                        attempts = attempts + 1
 
         display_x = width / 2
         main_display_y = height / 2
