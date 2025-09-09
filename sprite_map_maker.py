@@ -27,7 +27,6 @@ def display_side_grid(grid, grid_length, deepness, screen, steepness):
             draw_rect(screen, row*grid_length+deepness, col * grid_length + steepness, grid[row][col], grid_length, grid_length)
 
 def get_grid_rects(grid, grid_length, deepness):
-    ic(grid_length)
     for row in range(0, 8):
         for column in range(0, 8):
             grid[row][column] = pygame.Rect((row * grid_length + deepness, column * grid_length + 15, grid_length, grid_length))
@@ -63,15 +62,16 @@ def draw_colour_bar(slider_pos_red, slider_pos_green, slider_pos_blue, current_c
 
     return slider_pos_red, slider_pos_green, slider_pos_blue, current_colour
 
-def draw_brushes(screen):
-    # ((top left), (top right), (bottom right), (bottom left))
-    draw_polygon(screen, (0, 0, 0), ((20, 400), (35, 415), (35, 435), (20, 420)))
-    # draw_polygon(screen, (0, 0, 0), ((35, 427.5), (60, 447.5), (35, 427.5)))
-    draw_line(screen, 35, 420, 60, 410, (0, 0, 0), 3)
-    draw_line(screen, 35, 425, 62, 420, (0, 0, 0), 3)
-    draw_line(screen, 35, 430, 65, 430, (0, 0, 0), 3)
-    # draw_line(screen, 35, 420, 62, 410, (0, 0, 0), 3)
-    # draw_line(screen, 35, 420, 60, 410, (0, 0, 0), 3)
+def draw_brushes(screen, screen_width, brush_png, bucket_png, tool_selected):
+    # draws the brush and the fill bucket
+    if tool_selected == "brush":
+        None
+        # draw_rect()
+    elif tool_selected == "bucket":
+        None
+        # draw_rect()
+    screen.blit(brush_png, (screen_width / 2 - 225, 0))
+    screen.blit(bucket_png, (screen_width / 2 - 225, 0))
 
 def draw_line(screen, startx, starty, endx, endy, colour = (0, 0, 0), width = 1):
     pygame.draw.line(screen, colour, (startx, starty), (endx, endy), width)
@@ -120,25 +120,29 @@ def main():
         RECT_grid_full[0][0] = True
         rect_grid = get_grid_rects(RECT_grid_full, RECT_full_grid_length * 9, 215)
 
+        # which colour is currently selected to be changed
         NO_COLOUR = 0
         RED_COLOUR = 1
         GREEN_COLOUR = 2
         BLUE_COLOUR = 3
         colour_change = NO_COLOUR
 
+        # width of the tiles in the side grid
         side_grid_length = 8
 
         colour_side_grid = [[(0, 0, 0)] * side_grid_length for _ in range(0, side_grid_length)]
-    
-        rect_side_grid = [[(0)] * side_grid_length for _ in range(0, side_grid_length)]
-        rect_side_grid = get_grid_rects(rect_side_grid, side_grid_length * 2.5, 25)
+
+        # defines the brush variables & pngs
+        tool_selected = "brush"
+        brush_png = None
+        bucket_png = None
 
     running = True
     while running:
 
-        key = pygame.key.get_pressed()
+        mouse_pos = None
 
-        colour_change = NO_COLOUR
+        key = pygame.key.get_pressed()
 
         for event in pygame.event.get():
 
@@ -146,11 +150,12 @@ def main():
             if key[pygame.K_ESCAPE] or event.type == pygame.QUIT:
                 running = False
 
+            mouse_pos = pygame.mouse.get_pos()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                mouse_pos = pygame.mouse.get_pos()
 
                 # if the mouse position is in range of the larger grid then it checks where in it,
                 # sets that place to selected, and sets all other places to unselected
+                ic(mouse_pos)
                 if (mouse_pos[0] >= 215 and mouse_pos[0] <= 790) and (mouse_pos[1] >= 20 and mouse_pos[1] <= 590):
                     for row in range(0, 8):
                         for column in range(0, 8):
@@ -163,37 +168,45 @@ def main():
                 elif (mouse_pos[0] >= 25 and mouse_pos[0] <= 185) and (mouse_pos[1] >= 28 and mouse_pos[1] <= 184):
                     for row in range(0, 8):
                         for column in range(0, 8):
-                            if pygame.mouse.get_pressed()[0] and rect_side_grid[row][column].collidepoint(mouse_pos):
-                                colour_side_grid[row][column] = current_colour
+                            collider_row = int((mouse_pos[0] - 25) / 20)
+                            collider_col = int((mouse_pos[1] - 28) / 20)
+
+                            colour_side_grid[collider_row][collider_col] = current_colour
 
                 # displays the colour bars
                 # red
                 elif (mouse_pos[0] >= 25 and mouse_pos[0] <= 185) and (mouse_pos[1] >= 210 and mouse_pos[1] <= 240):
                     colour_change = RED_COLOUR
-                    ic(mouse_pos, "red")
                 # green
                 elif (mouse_pos[0] >= 25 and mouse_pos[0] <= 185) and (mouse_pos[1] >= 270 and mouse_pos[1] <= 300):
                     colour_change = GREEN_COLOUR
-                    ic(mouse_pos, "green")
                 # blue
                 elif (mouse_pos[0] >= 25 and mouse_pos[0] <= 185) and (mouse_pos[1] >= 330 and mouse_pos[1] <= 360):
                     colour_change = BLUE_COLOUR
-                    ic(mouse_pos, "blue")
 
-        # screen.fill((0, 9, 141))
+            if event.type == pygame.MOUSEBUTTONUP or mouse_pos[0] <= 25 or mouse_pos[0] >= 185:
+                colour_change = NO_COLOUR
+
         screen.fill((45, 52, 92))
 
                                     # --display from here onward!--
 
-        mouse_pos = pygame.mouse.get_pos()
+        if mouse_pos == None:
+            mouse_pos = pygame.mouse.get_pos()
 
+        # draws the currently selected colour in a box below the side grid
+        draw_rect(screen, 75, 370, (244, 234, 87), 60, 60)
+        draw_rect(screen, 80, 375, current_colour, 50, 50)
+
+        # draws the colour bars
         slider_red_pos, slider_green_pos, slider_blue_pos, current_colour = draw_colour_bar(slider_red_pos, slider_green_pos, slider_blue_pos, current_colour, mouse_pos, colour_change, screen)
 
+        # draws the main grid
         true_rectxy_tuple = display_full_grid(grid_full, full_grid_length * 9, 215, screen, 15)
 
+        # draws the grid on the side of the screen
         display_side_grid(colour_side_grid, side_grid_length * 2.5, 25, screen, 25)
-
-        draw_brushes(screen)
+        # draw_brushes(screen, screen_width, brush_png, bucket_png, tool_selected)
 
         pygame.display.update()
 
