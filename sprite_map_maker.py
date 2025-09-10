@@ -11,6 +11,13 @@ RED_COLOUR = 1
 GREEN_COLOUR = 2
 BLUE_COLOUR = 3
 
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+BLACK = (0, 0, 0)
+GREY = (128, 128, 128)
+WHITE = (255, 255, 255)
+
 SIDE_GRID_LENGTH = 8
 
 def display_full_grid(grid_full, grid_length, deepness, screen, steepness):
@@ -39,6 +46,7 @@ def display_side_grid(grid, grid_length, deepness, screen, steepness):
         for col in range(0, 8):
             # draws 20 by 20 rects
             draw_rect(screen, row*grid_length+deepness, col * grid_length + steepness, grid[row][col], grid_length, grid_length)
+
 def get_grid_rects(grid, grid_length, deepness):
     for row in range(0, 8):
         for column in range(0, 8):
@@ -75,16 +83,47 @@ def draw_colour_bar(slider_pos_red, slider_pos_green, slider_pos_blue, current_c
 
     return slider_pos_red, slider_pos_green, slider_pos_blue, current_colour
 
-def draw_brushes(screen, screen_width, brush_png, bucket_png, tool_selected):
-    # draws the brush and the fill bucket
+def draw_brushes_and_set_colours(screen, screen_width, brush_png, bucket_png, tool_selected):
+    brush_colour = (0, 0, 0)
+    bucket_colour = (0, 0, 0)
+
+    if False:
+        # draws the brush and the fill bucket
+        screen.blit(brush_png, (screen_width / 2 - 225, 0))
+        screen.blit(bucket_png, (screen_width / 2 - 225, 0))
+
     if tool_selected == "brush":
-        None
-        # draw_rect()
+        brush_colour = (136, 10, 232)
     elif tool_selected == "bucket":
-        None
-        # draw_rect()
-    screen.blit(brush_png, (screen_width / 2 - 225, 0))
-    screen.blit(bucket_png, (screen_width / 2 - 225, 0))
+        bucket_colour = (136, 10, 232)
+
+    # draws the boxes around the brush
+    draw_rect(screen, 25, 475, (244, 234, 87), 65, 65)
+    draw_rect(screen, 30, 480, brush_colour, 55, 55)
+
+    # draws the boxes around the bucket
+    draw_rect(screen, 115, 475, (244, 234, 87), 65, 65)
+    draw_rect(screen, 120, 480, bucket_colour, 55, 55)
+
+    # draws the boxes of set colours
+    # draws the 
+    for row in range(20, 141, 60):
+        for column in range(575, 636, 60):
+            draw_rect(screen, row, column, (244, 234, 87), 45, 45)
+
+    # red: 25x 580y to 60x 615y
+    draw_rect(screen, 25, 580, (255, 0, 0), 35, 35)
+    # green: 85x 580y to 110x 615y
+    draw_rect(screen, 85, 580, (0, 255, 0), 35, 35)
+    # blue: 145x 580y to 180x 615y
+    draw_rect(screen, 145, 580, (0, 0, 255), 35, 35)
+
+    # black: 25x 640y to 60x 675y
+    draw_rect(screen, 25, 640, (0, 0, 0), 35, 35)
+    # white: 85x 640y to 110x 675y
+    draw_rect(screen, 85, 640, (255, 255, 255), 35, 35)
+    # grey: 145x 640y to 180x 675y
+    draw_rect(screen, 145, 640, (128, 128, 128), 35, 35)
 
 def draw_line(screen, startx, starty, endx, endy, colour = (0, 0, 0), width = 1):
     pygame.draw.line(screen, colour, (startx, starty), (endx, endy), width)
@@ -109,7 +148,7 @@ def type_msg(screen, font, x, y, text, colour):
 
 def main():
 
-    # foldable list of general variables
+    # foldable list of general variables (244, 234, 87)
     if True:
         screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
@@ -129,7 +168,7 @@ def main():
         RECT_full_grid_length = 8
         RECT_grid_full = [[False] * RECT_full_grid_length for _ in range(0, RECT_full_grid_length)]
         RECT_grid_full[0][0] = True
-        rect_grid = get_grid_rects(RECT_grid_full, RECT_full_grid_length * 9, 215)
+        rect_grid = get_grid_rects(RECT_grid_full, RECT_full_grid_length * 10, 215)
 
         # which colour is currently selected to be changed
         colour_change = NO_COLOUR
@@ -161,7 +200,7 @@ def main():
 
                 # if the mouse position is in range of the larger grid then it checks where in it,
                 # sets that place to selected, and sets all other places to unselected
-                ic(mouse_pos)
+
                 if (mouse_pos[0] >= 215 and mouse_pos[0] <= 790) and (mouse_pos[1] >= 20 and mouse_pos[1] <= 590):
                     for row in range(0, 8):
                         for column in range(0, 8):
@@ -179,7 +218,7 @@ def main():
 
                             colour_side_grid[collider_row][collider_col] = current_colour
 
-                # displays the colour bars
+                # changes the colour in the colour bars
                 # red
                 elif (mouse_pos[0] >= 25 and mouse_pos[0] <= 185) and (mouse_pos[1] >= 210 and mouse_pos[1] <= 240):
                     colour_change = RED_COLOUR
@@ -189,6 +228,31 @@ def main():
                 # blue
                 elif (mouse_pos[0] >= 25 and mouse_pos[0] <= 185) and (mouse_pos[1] >= 330 and mouse_pos[1] <= 360):
                     colour_change = BLUE_COLOUR
+
+                # changes the colour to one of the set colours if they are pressed
+                # red: 25x 580y to 60x 615y
+                elif (mouse_pos[0] >= 25 and mouse_pos[0] <= 60) and (mouse_pos[1] >= 580 and mouse_pos[1] <= 615):
+                    colour_change == RED
+
+                # green: 85x 580y to 110x 615y
+                elif (mouse_pos[0] >= 85 and mouse_pos[0] <= 110) and (mouse_pos[1] >= 580 and mouse_pos[1] <= 615):
+                    colour_change == GREEN
+
+                # blue: 145x 580y to 180x 615y
+                elif (mouse_pos[0] >= 145 and mouse_pos[0] <= 180) and (mouse_pos[1] >= 580 and mouse_pos[1] <= 615):
+                    colour_change == BLUE
+
+                # black: 25x 640y to 60x 675y
+                elif (mouse_pos[0] >= 25 and mouse_pos[0] <= 60) and (mouse_pos[1] >= 640 and mouse_pos[1] <= 675):
+                    colour_change == BLACK
+
+                # white: 85x 640y to 110x 675y
+                elif (mouse_pos[0] >= 85 and mouse_pos[0] <= 110) and (mouse_pos[1] >= 640 and mouse_pos[1] <= 675):
+                    colour_change == WHITE
+            
+                # grey: 145x 640y to 180x 675y
+                elif (mouse_pos[0] >= 145 and mouse_pos[0] <= 180) and (mouse_pos[1] >= 640 and mouse_pos[1] <= 675):
+                    colour_change == GREY
 
             if event.type == pygame.MOUSEBUTTONUP or mouse_pos[0] <= 25 or mouse_pos[0] >= 185:
                 colour_change = NO_COLOUR
@@ -212,7 +276,7 @@ def main():
 
         # draws the grid on the side of the screen
         display_side_grid(colour_side_grid, SIDE_GRID_LENGTH * 2.5, 25, screen, 25)
-        # draw_brushes(screen, screen_width, brush_png, bucket_png, tool_selected)
+        draw_brushes_and_set_colours(screen, SCREEN_WIDTH, brush_png, bucket_png, tool_selected)
 
         pygame.display.update()
 
