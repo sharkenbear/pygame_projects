@@ -27,8 +27,9 @@ def display_full_grid(grid_full, grid_length, deepness, screen, steepness):
             if grid_full[row][col] == False:
                 if not defined:
                     true_rectxy = None
-                    # (screen, (0-8 * 20) + 25, 0-8 * 20 + 15, the colour black, 20, 20)
-                    # draws 80 p by 80 p rects
+                # (screen, (0-8 * 20) + 25, 0-8 * 20 + 15, the colour black, 20, 20)
+                # draws 80 p by 80 p rects
+                # for 
                 draw_rect(screen, row*grid_length+deepness, col * grid_length + steepness, (0, 0, 0), grid_length, grid_length)
             
             else:
@@ -176,6 +177,8 @@ def main():
     if True:
         screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
+        out_of_range = False
+
         # defines the colour slider variables      
         current_colour = (0, 0, 0)
         
@@ -222,7 +225,7 @@ def main():
                 running = False
 
             mouse_pos = pygame.mouse.get_pos()
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.type == pygame.MOUSEBUTTONDOWN or out_of_range:
 
                 # if the mouse position is in range of the larger grid then it checks where in it,
                 # sets that place to selected, and sets all other places to unselected
@@ -286,9 +289,12 @@ def main():
                     current_colour = GREY
                     set_colour_change = current_colour
 
-            if event.type == pygame.MOUSEBUTTONUP or mouse_pos[0] <= 25 or mouse_pos[0] >= 185:
-                print(mouse_pos[0])
+            if event.type == pygame.MOUSEBUTTONUP:
                 slider_change = NO_COLOUR
+                out_of_range = False
+            if (mouse_pos[0] <= 25 or mouse_pos[0] > 180) and slider_change != NO_COLOUR:
+                slider_change = NO_COLOUR
+                out_of_range = True
 
         screen.fill((45, 52, 92))
 

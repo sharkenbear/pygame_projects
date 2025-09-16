@@ -1,6 +1,8 @@
 import pygame
 import random
 
+pygame.init()
+
 def display_text(screen, font, x, y, text, colour):
     text = font.render(str(text), True, colour)
     text_rect = text.get_rect(center=(x, y))
@@ -16,9 +18,6 @@ def main():
 
     num_input = -1
     digits = ""
-
-
-    pygame.init()
 
     allow_digits = True
 
