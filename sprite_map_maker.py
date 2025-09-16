@@ -53,35 +53,56 @@ def get_grid_rects(grid, grid_length, deepness):
             grid[row][column] = pygame.Rect((row * grid_length + deepness, column * grid_length + 15, grid_length, grid_length))
     return grid
 
-def draw_colour_bar(slider_pos_red, slider_pos_green, slider_pos_blue, current_colour, mouse_pos, colour_change, screen):
+def draw_colour_bar(slider_pos_red, slider_pos_green, slider_pos_blue, current_colour, mouse_pos, slider_change, screen, colour_change):
     for row in range(25, 185):
         draw_rect(screen, row, 210, (row, 0, 0), 1, 30)
         draw_rect(screen, row, 270, (0, row, 0), 1, 30)
         draw_rect(screen, row, 330, (0, 0, row), 1, 30)
 
+    red_in = ()
+    green_in = ()
+    blue_in = ()
     # sets the slider bar to wherver you press on it and the colour to where it is on the bar
-    if colour_change != 0:
+    if colour_change != None:
+        slider_pos_red = colour_change[0]
+        slider_pos_green = colour_change[1]
+        slider_pos_blue = colour_change[2]
+        
+        current_colour = (get_slider_colour(slider_pos_red, (0, 255, 25, 180)), get_slider_colour(slider_pos_green, (0, 255, 25, 180)), get_slider_colour(slider_pos_blue, (0, 255, 25, 180)))
+        
+        red_in = 0, 255, 25, 180
+        green_in = 0, 255, 25, 180
+        blue_in = 0, 255, 25, 180
+    elif slider_change != 0:
         # red
-        if colour_change == 1:
+        if slider_change == 1:
             slider_pos_red = mouse_pos[0]
-            colour_red = get_slider_colour(slider_pos_red)
-            current_colour = (colour_red, current_colour[1], current_colour[2])
+            current_colour = (get_slider_colour(slider_pos_red, (25, 180, 0, 255)), current_colour[1], current_colour[2])
         # green
-        elif colour_change == 2:
+        elif slider_change == 2:
             slider_pos_green = mouse_pos[0]
-            colour_green = get_slider_colour(slider_pos_green)
-            current_colour = (current_colour[0], colour_green, current_colour[2])
+            current_colour = (current_colour[0], get_slider_colour(slider_pos_green, (25, 180, 0, 255)), current_colour[2])
         # blue
-        elif colour_change == 3:
+        elif slider_change == 3:
             slider_pos_blue = mouse_pos[0]
-            colour_blue = get_slider_colour(slider_pos_blue)
-            current_colour = (current_colour[0], current_colour[1], colour_blue)
+            current_colour = (current_colour[0], current_colour[1], get_slider_colour(slider_pos_blue, (25, 180, 0, 255)))
     
     draw_rect(screen, slider_pos_red - 3, 210 - 7.5, (255, 255, 255), 10, 45)
     draw_rect(screen, slider_pos_green - 3, 270 - 7.5, (255, 255, 255), 10, 45)
     draw_rect(screen, slider_pos_blue - 3, 330 - 7.5, (255, 255, 255), 10, 45)
 
-    return slider_pos_red, slider_pos_green, slider_pos_blue, current_colour
+    red_return = slider_pos_red
+    green_return = slider_pos_green
+    blue_return = slider_pos_blue
+
+    if red_in != ():
+        red_return = get_slider_colour(slider_pos_red, red_in)
+    if green_in != ():
+        green_return = get_slider_colour(slider_pos_green, green_in)
+    if blue_in != ():
+        blue_return = get_slider_colour(slider_pos_blue, blue_in)
+
+    return red_return, green_return, blue_return, current_colour
 
 def draw_brushes_and_set_colours(screen, screen_width, brush_png, bucket_png, tool_selected):
     brush_colour = (0, 0, 0)
@@ -136,9 +157,12 @@ def draw_rect(screen, x, y, colour, size_x, size_y):
     square = pygame.Rect((x, y, size_x, size_y))
     pygame.draw.rect(screen, colour, square)
 
-def get_slider_colour(original_colour):
-    new_colour = int((original_colour - 24) * 1.58)
-    return new_colour
+# def get_slider_colour(original_colour, changeing = False):
+def get_slider_colour(original_colour, in_tuple, anything = True):
+    in_min, in_max, out_min, out_max = in_tuple
+    if anything:
+        return (original_colour - in_min) * (out_max - out_min) // (in_max - in_min) + out_min
+    return original_colour
 
 # displays coloured text on the screen
 def type_msg(screen, font, x, y, text, colour):
@@ -170,8 +194,9 @@ def main():
         RECT_grid_full[0][0] = True
         rect_grid = get_grid_rects(RECT_grid_full, RECT_full_grid_length * 10, 215)
 
-        # which colour is currently selected to be changed
-        colour_change = NO_COLOUR
+        # which colour is currently selected to be changed and which colour it has been changed to
+        slider_change = NO_COLOUR
+        set_colour_change = None
 
         # width of the tiles in the side grid
 
@@ -186,6 +211,7 @@ def main():
     while running:
 
         mouse_pos = None
+        set_colour_change = None
 
         key = pygame.key.get_pressed()
 
@@ -220,42 +246,49 @@ def main():
 
                 # changes the colour in the colour bars
                 # red
-                elif (mouse_pos[0] >= 25 and mouse_pos[0] <= 185) and (mouse_pos[1] >= 210 and mouse_pos[1] <= 240):
-                    colour_change = RED_COLOUR
+                elif (mouse_pos[0] >= 25 and mouse_pos[0] <= 180) and (mouse_pos[1] >= 210 and mouse_pos[1] <= 240):
+                    slider_change = RED_COLOUR
                 # green
-                elif (mouse_pos[0] >= 25 and mouse_pos[0] <= 185) and (mouse_pos[1] >= 270 and mouse_pos[1] <= 300):
-                    colour_change = GREEN_COLOUR
+                elif (mouse_pos[0] >= 25 and mouse_pos[0] <= 180) and (mouse_pos[1] >= 270 and mouse_pos[1] <= 300):
+                    slider_change = GREEN_COLOUR
                 # blue
-                elif (mouse_pos[0] >= 25 and mouse_pos[0] <= 185) and (mouse_pos[1] >= 330 and mouse_pos[1] <= 360):
-                    colour_change = BLUE_COLOUR
+                elif (mouse_pos[0] >= 25 and mouse_pos[0] <= 180) and (mouse_pos[1] >= 330 and mouse_pos[1] <= 360):
+                    slider_change = BLUE_COLOUR
 
                 # changes the colour to one of the set colours if they are pressed
                 # red: 25x 580y to 60x 615y
                 elif (mouse_pos[0] >= 25 and mouse_pos[0] <= 60) and (mouse_pos[1] >= 580 and mouse_pos[1] <= 615):
-                    colour_change == RED
+                    current_colour = RED
+                    set_colour_change = current_colour
 
                 # green: 85x 580y to 110x 615y
                 elif (mouse_pos[0] >= 85 and mouse_pos[0] <= 110) and (mouse_pos[1] >= 580 and mouse_pos[1] <= 615):
-                    colour_change == GREEN
+                    current_colour = GREEN
+                    set_colour_change = current_colour
 
                 # blue: 145x 580y to 180x 615y
                 elif (mouse_pos[0] >= 145 and mouse_pos[0] <= 180) and (mouse_pos[1] >= 580 and mouse_pos[1] <= 615):
-                    colour_change == BLUE
+                    current_colour = BLUE
+                    set_colour_change = current_colour
 
                 # black: 25x 640y to 60x 675y
                 elif (mouse_pos[0] >= 25 and mouse_pos[0] <= 60) and (mouse_pos[1] >= 640 and mouse_pos[1] <= 675):
-                    colour_change == BLACK
+                    current_colour = BLACK
+                    set_colour_change = current_colour
 
                 # white: 85x 640y to 110x 675y
                 elif (mouse_pos[0] >= 85 and mouse_pos[0] <= 110) and (mouse_pos[1] >= 640 and mouse_pos[1] <= 675):
-                    colour_change == WHITE
+                    current_colour = WHITE
+                    set_colour_change = current_colour
             
                 # grey: 145x 640y to 180x 675y
                 elif (mouse_pos[0] >= 145 and mouse_pos[0] <= 180) and (mouse_pos[1] >= 640 and mouse_pos[1] <= 675):
-                    colour_change == GREY
+                    current_colour = GREY
+                    set_colour_change = current_colour
 
             if event.type == pygame.MOUSEBUTTONUP or mouse_pos[0] <= 25 or mouse_pos[0] >= 185:
-                colour_change = NO_COLOUR
+                print(mouse_pos[0])
+                slider_change = NO_COLOUR
 
         screen.fill((45, 52, 92))
 
@@ -269,7 +302,7 @@ def main():
         draw_rect(screen, 80, 375, current_colour, 50, 50)
 
         # draws the colour bars
-        slider_red_pos, slider_green_pos, slider_blue_pos, current_colour = draw_colour_bar(slider_red_pos, slider_green_pos, slider_blue_pos, current_colour, mouse_pos, colour_change, screen)
+        slider_red_pos, slider_green_pos, slider_blue_pos, current_colour = draw_colour_bar(slider_red_pos, slider_green_pos, slider_blue_pos, current_colour, mouse_pos, slider_change, screen, set_colour_change)
 
         # draws the main grid
         true_rectxy_tuple = display_full_grid(grid_full, full_grid_length * 10, 215, screen, 15)
