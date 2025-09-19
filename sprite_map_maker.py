@@ -1,4 +1,5 @@
 import pygame
+import random
 from icecream import ic
 
 pygame.init()
@@ -20,22 +21,36 @@ WHITE = (255, 255, 255)
 
 SIDE_GRID_LENGTH = 8
 
+def draw_full_grid2(screen, startposx, startposy, length, height, tile_size):
+    for row in range(0, length):
+        for column in range(0, height):
+            draw_rect(screen, startposx + (row * (tile_size * 2.5) + tile_size), startposy + (column * (tile_size*2.5) + tile_size), (0, 0, 0), tile_size * 2, tile_size * 2)
+
 def display_full_grid(grid_full, grid_length, deepness, screen, steepness):
     defined = False
+    op = 0
     for row in range(0, 8):
         for col in range(0, 8):
             if grid_full[row][col] == False:
                 if not defined:
                     true_rectxy = None
+                # (screen, x, y, colour, size_x, size_y)
                 # (screen, (0-8 * 20) + 25, 0-8 * 20 + 15, the colour black, 20, 20)
                 # draws 80 p by 80 p rects
-                # for 
-                draw_rect(screen, row*grid_length+deepness, col * grid_length + steepness, (0, 0, 0), grid_length, grid_length)
+                draw_full_grid2(screen, row*grid_length+deepness, col * grid_length + steepness, 5, 5, 5)
+                # for row2 in range (0, 5):   (random.randint(0, 120), random.randint(0, 120), random.randint(0, 120))
+                #     for col2 in range(0, 5):
+                #         op = op + 1
+                #         print((row2*grid_length+deepness)*1.4)
+                        # draw_rect(screen, (row2*grid_length+deepness)*1.4*int(row / 8), (col2 * grid_length + steepness) * 1.4, (random.randint(0, 120), random.randint(0, 120), random.randint(0, 120)), grid_length -50, grid_length -50)
+                # draw_rect(screen, row*grid_length+deepness, col * grid_length + steepness, (0, 0, 0), grid_length, grid_length)
             
             else:
                 # draws a box around the currently selected position
                 defined = True
                 true_rectxy = (row, col)
+
+    # print(op)
 
     if true_rectxy != None:
         draw_rect(screen, true_rectxy[0]*grid_length+deepness-7.5, true_rectxy[1] * grid_length + steepness -7.5, (255, 255, 255), grid_length + 15, grid_length + 15)
