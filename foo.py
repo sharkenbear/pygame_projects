@@ -45,35 +45,3 @@ def main(colour_side_grid, current_colour, full_colour_grid, full_grid_length, s
 
     display_full_grid(selected, full_grid_length * 10 / 8, 215, screen, 15, full_colour_grid)
     display_side_grid(colour_side_grid, SIDE_GRID_LENGTH * 2.5, 25, screen, 25)
-
-    # key = pygame.key.get_pressed()
-
-    # for event in pygame.event.get():
-
-    #     if key[pygame.K_ESCAPE] or event.type == pygame.QUIT:
-            # running = False
-
-        # mouse_pos = pygame.mouse.get_pos()
-        # if event.type == pygame.MOUSEBUTTONDOWN:
-        #     if (mouse_pos[0] >= 25 and mouse_pos[0] <= 184) and (mouse_pos[1] >= 28 and mouse_pos[1] <= 186):
-
-        #         collider_row = int((mouse_pos[0] - 25) / 20)
-        #         collider_col = int((mouse_pos[1] - 28) / 20)
-
-        #         selec_row = collider_row + ((selected[0]) * 8)
-        #         selec_col = collider_col + ((selected[1]) * 8)
-
-        #         colour_side_grid[collider_row][collider_col] = current_colour
-        #         full_colour_grid[selec_row][selec_col] = current_colour
-
-        #     elif (mouse_pos[0] >= 221 and mouse_pos[0] <= 860) and (mouse_pos[1] >= 23 and mouse_pos[1] <= 661):
-        #         collider_row = int((mouse_pos[0] - 221) / 80)
-        #         collider_col = int((mouse_pos[1] - 23) / 80)
-
-        #         selected = collider_row, collider_col
-        #         for row in range(0, 8):
-        #             for col in range(0, 8):
-        #                 grid_row = collider_row * 8 + row
-        #                 grid_col = collider_col * 8 + col
-        #                 colour_side_grid[row][col] = full_colour_grid[grid_row][grid_col]
-
