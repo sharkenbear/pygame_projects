@@ -6,8 +6,11 @@ import sprite_map_maker_essential
 
 pygame.init()
 
-SCREEN_WIDTH = 900
+SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 700
+
+FILL = 0
+BRUSH = 1
 
 NO_COLOUR = 0
 RED_COLOUR = 1
@@ -22,6 +25,10 @@ GREY = (128, 128, 128)
 WHITE = (255, 255, 255)
 
 SIDE_GRID_LENGTH = 8
+
+def save_map(full_colour_grid):
+    print("saved!")
+    print("(not actually i have not implemented that yet)")
 
 def get_grid_rects(grid, grid_length, deepness):
     for row in range(0, 8):
@@ -81,18 +88,19 @@ def draw_colour_bar(slider_pos_red, slider_pos_green, slider_pos_blue, current_c
     return red_return, green_return, blue_return, current_colour
 
 def draw_brushes_and_set_colours(screen, screen_width, brush_png, bucket_png, tool_selected):
-    brush_colour = (0, 0, 0)
-    bucket_colour = (0, 0, 0)
 
     if False:
         # draws the brush and the fill bucket
         screen.blit(brush_png, (screen_width / 2 - 225, 0))
         screen.blit(bucket_png, (screen_width / 2 - 225, 0))
 
-    if tool_selected == "brush":
+    if tool_selected == BRUSH:
         brush_colour = (136, 10, 232)
-    elif tool_selected == "bucket":
+        bucket_colour = (0, 0, 0)
+
+    elif tool_selected == FILL:
         bucket_colour = (136, 10, 232)
+        brush_colour = (0, 0, 0)
 
     # draws the boxes around the brush
     draw_rect(screen, 25, 475, (244, 234, 87), 65, 65)
@@ -153,7 +161,7 @@ def main():
         out_of_range = False
 
         # defines the colour slider variables      
-        current_colour = (0, 0, 0)
+        current_colour = (255, 0, 0)
         
         slider_red_pos = 25
         slider_green_pos = 25
@@ -181,9 +189,11 @@ def main():
         colour_side_grid = [[(0, 0, 0)] * SIDE_GRID_LENGTH for _ in range(0, SIDE_GRID_LENGTH)]
 
         # defines the brush variables & pngs
-        tool_selected = "brush"
+        tool_selected = BRUSH
         brush_png = None
         bucket_png = None
+
+        cmd = False
 
     running = True
     while running:
@@ -198,18 +208,27 @@ def main():
             # if escape or quit, ends the while loop which leads to the game quiting
             if key[pygame.K_ESCAPE] or event.type == pygame.QUIT:
                 running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LMETA or event.key == pygame.K_RMETA:
+                    cmd = True
+                if cmd and event.key == pygame.K_s:
+                    save_map(full_colour_grid)
+
+            elif event.type == pygame.KEYUP:
+                if event.key == pygame.K_LMETA or event.key == pygame.K_RMETA:
+                    cmd = False
 
             mouse_pos = pygame.mouse.get_pos()
             if event.type == pygame.MOUSEBUTTONDOWN or out_of_range:
 
-                # if the mouse position is in range of the larger grid then it checks where in it,
-                # sets that place to selected, and sets all other places to unselected
+                # changes the selected sprite#
 
-                if (mouse_pos[0] >= 215 and mouse_pos[0] <= 790) and (mouse_pos[1] >= 20 and mouse_pos[1] <= 590):
+                if (mouse_pos[0] >= 221 and mouse_pos[0] <= 860) and (mouse_pos[1] >= 23 and mouse_pos[1] <= 660):
                     collider_row = int((mouse_pos[0] - 221) / 80)
                     collider_col = int((mouse_pos[1] - 23) / 80)
 
                     selected = collider_row, collider_col
+                    print(mouse_pos)
                     for row in range(0, 8):
                         for col in range(0, 8):
                             grid_row = collider_row * 8 + row
@@ -270,6 +289,14 @@ def main():
                     current_colour = GREY
                     set_colour_change = current_colour
 
+                # changes the selected tool to whatever brush is clicked
+                # fill/bucket tool
+                elif (mouse_pos[0] >= 116 and mouse_pos[0] <= 180) and (mouse_pos[1] >= 478 and mouse_pos[1] <= 541):
+                    tool_selected = FILL
+                # brush tool
+                elif (mouse_pos[0] >= 26 and mouse_pos[0] <= 89) and (mouse_pos[1] >= 478 and mouse_pos[1] <= 541):
+                    tool_selected = BRUSH
+
             if event.type == pygame.MOUSEBUTTONUP:
                 slider_change = NO_COLOUR
                 out_of_range = False
@@ -292,7 +319,7 @@ def main():
         slider_red_pos, slider_green_pos, slider_blue_pos, current_colour = draw_colour_bar(slider_red_pos, slider_green_pos, slider_blue_pos, current_colour, mouse_pos, slider_change, screen, set_colour_change)
 
         # draws the main grid
-        sprite_map_maker_essential.main(colour_side_grid, current_colour, full_colour_grid, full_grid_length, screen, selected)
+        sprite_map_maker_essential.main(colour_side_grid, current_colour, full_colour_grid, full_grid_length, screen, selected, SIDE_GRID_LENGTH)
         # (selected, full_grid_length * 10, 215, screen, 15, full_colour_grid)
 
         # draws the grid on the side of the screen

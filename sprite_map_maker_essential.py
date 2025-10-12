@@ -3,10 +3,6 @@ from icecream import ic
 
 pygame.init()
 
-SIDE_GRID_LENGTH = 8
-SCREEN_WIDTH = 900
-SCREEN_HEIGHT = 700
-
 def display_side_grid(grid, grid_length, deepness, screen, steepness):
     for row in range(0, 8):
         for col in range(0, 8):
@@ -38,7 +34,7 @@ def display_full_grid(selected, grid_length, deepness, screen, steepness, full_c
         draw_rect(screen, selected[0]*grid_length+deepness+2, selected[1] * grid_length + steepness +2, (255, 255, 255), grid_length + 6, grid_length + 6)
         draw_full_grid(screen, (selected[0])*grid_length+deepness, selected[1]*grid_length+steepness, 5, full_colour_grid, selected[0], selected[1])
 
-def main(colour_side_grid, current_colour, full_colour_grid, full_grid_length, screen, selected):
+def main(colour_side_grid, current_colour, full_colour_grid, full_grid_length, screen, selected, SIDE_GRID_LENGTH):
     
     draw_rect(screen, 75, 370, (244, 234, 87), 60, 60)
     draw_rect(screen, 80, 375, current_colour, 50, 50)
