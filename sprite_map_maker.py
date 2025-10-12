@@ -2,7 +2,7 @@ import pygame
 import random
 from icecream import ic
 
-import foo
+import sprite_map_maker_essential
 
 pygame.init()
 
@@ -22,46 +22,6 @@ GREY = (128, 128, 128)
 WHITE = (255, 255, 255)
 
 SIDE_GRID_LENGTH = 8
-
-# def draw_full_grid(screen, startposx, startposy, width, height, tile_size, full_colour_grid):
-    
-#     for row in range(0, height):
-#         for column in range(0, width):
-#             if row < 8 and column < 8:
-#                 draw_rect(screen, startposx + (row * (tile_size * 2) + tile_size), startposy + (column * (tile_size*2) + tile_size), full_colour_grid[row][column], tile_size * 2, tile_size * 2)
-
-# def display_full_grid(selected, grid_length, deepness, screen, steepness, full_colour_grid):
-#     # defined = False
-#         # draw_rect(screen, true_rectxy[0]*grid_length+deepness, true_rectxy[1] * grid_length + steepness, (0, 0, 0), grid_length, grid_length)
-#     for row in range(0, 8):
-#         for col in range(0, 8):
-#             # if row == selected[0] and col == selected[1]:
-#             # # if grid_full[row][col] == False:
-#             #     None
-#             #     # if not defined:
-#             #     #     true_rectxy = (0, 0)
-            
-#             # else:
-#             #     # draws a box around the currently selected position
-#             #     defined = True
-#                 # true_rectxy = (row, col)
-
-#             # (screen, x, y, colour, size_x, size_y)
-#             # (screen, (0-8 * 20) + 25, 0-8 * 20 + 15, the colour black, 20, 20)
-#             # draws 5 p by 5 p rects
-#             draw_full_grid(screen, row*grid_length+deepness, col*grid_length+steepness, 8, 8, 5, full_colour_grid[selected[0]] [selected[1]])
-
-#     # if true_rectxy != None:
-#     draw_rect(screen, selected[0]*grid_length+deepness+2, selected[1] * grid_length + steepness +2, (255, 255, 255), grid_length + 6, grid_length + 6)
-#     draw_full_grid(screen, (selected[0])*grid_length+deepness, selected[1]*grid_length+steepness, 8, 8, 5, full_colour_grid[selected[0]] [selected[1]])
-    
-#     return selected
-
-# def display_side_grid(grid, grid_length, deepness, screen, steepness):
-#     for row in range(0, 8):
-#         for col in range(0, 8):
-#             # draws 20 by 20 rects
-#             draw_rect(screen, row*grid_length+deepness, col * grid_length + steepness, grid[row][col], grid_length, grid_length)
 
 def get_grid_rects(grid, grid_length, deepness):
     for row in range(0, 8):
@@ -168,12 +128,10 @@ def draw_line(screen, startx, starty, endx, endy, colour = (0, 0, 0), width = 1)
 def draw_polygon(screen, colour, square_brackets_points):
     pygame.draw.polygon(screen, colour, square_brackets_points)
 
-# draws a coloured rectange on the screen
 def draw_rect(screen, x, y, colour, size_x, size_y):
     square = pygame.Rect((x, y, size_x, size_y))
     pygame.draw.rect(screen, colour, square)
 
-# def get_slider_colour(original_colour, changeing = False):
 def get_slider_colour(original_colour, in_tuple, anything = True):
     in_min, in_max, out_min, out_max = in_tuple
     if anything:
@@ -334,7 +292,7 @@ def main():
         slider_red_pos, slider_green_pos, slider_blue_pos, current_colour = draw_colour_bar(slider_red_pos, slider_green_pos, slider_blue_pos, current_colour, mouse_pos, slider_change, screen, set_colour_change)
 
         # draws the main grid
-        foo.main(colour_side_grid, current_colour, full_colour_grid, full_grid_length, screen, selected)
+        sprite_map_maker_essential.main(colour_side_grid, current_colour, full_colour_grid, full_grid_length, screen, selected)
         # (selected, full_grid_length * 10, 215, screen, 15, full_colour_grid)
 
         # draws the grid on the side of the screen
