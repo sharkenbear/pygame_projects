@@ -76,11 +76,8 @@ def main():
                     collider_row = int((mouse_pos[0] - 25) / 20)
                     collider_col = int((mouse_pos[1] - 28) / 20)
 
-                    selec_row = collider_row * (selected[0] + 1)
-                    selec_col = collider_col * (selected[1] + 1)
-                    
-                    print(collider_row, "collide", collider_col)
-                    print (selec_row, "stopper", selec_col)
+                    selec_row = collider_row + ((selected[0]) * 8)
+                    selec_col = collider_col + ((selected[1]) * 8)
 
                     colour_side_grid[collider_row][collider_col] = current_colour
                     full_colour_grid[selec_row][selec_col] = current_colour
@@ -90,8 +87,9 @@ def main():
                     collider_col = int((mouse_pos[1] - 23) / 80)
 
                     selected = collider_row, collider_col
-
-                    # full_colour_grid[collider_row][collider_col] = current_colour
+                    for row in range(0, 8):
+                        for col in range(0, 8):
+                            colour_side_grid[row][col] = 
 
         screen.fill((45, 52, 92))
 
