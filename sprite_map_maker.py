@@ -2,6 +2,8 @@ import pygame
 import random
 from icecream import ic
 
+import foo
+
 pygame.init()
 
 SCREEN_WIDTH = 900
@@ -21,45 +23,45 @@ WHITE = (255, 255, 255)
 
 SIDE_GRID_LENGTH = 8
 
-def draw_full_grid(screen, startposx, startposy, width, height, tile_size, full_colour_grid):
+# def draw_full_grid(screen, startposx, startposy, width, height, tile_size, full_colour_grid):
     
-    for row in range(0, height):
-        for column in range(0, width):
-            if row < 8 and column < 8:
-                draw_rect(screen, startposx + (row * (tile_size * 2) + tile_size), startposy + (column * (tile_size*2) + tile_size), full_colour_grid[row][column], tile_size * 2, tile_size * 2)
+#     for row in range(0, height):
+#         for column in range(0, width):
+#             if row < 8 and column < 8:
+#                 draw_rect(screen, startposx + (row * (tile_size * 2) + tile_size), startposy + (column * (tile_size*2) + tile_size), full_colour_grid[row][column], tile_size * 2, tile_size * 2)
 
-def display_full_grid(selected, grid_length, deepness, screen, steepness, full_colour_grid):
-    # defined = False
-        # draw_rect(screen, true_rectxy[0]*grid_length+deepness, true_rectxy[1] * grid_length + steepness, (0, 0, 0), grid_length, grid_length)
-    for row in range(0, 8):
-        for col in range(0, 8):
-            # if row == selected[0] and col == selected[1]:
-            # # if grid_full[row][col] == False:
-            #     None
-            #     # if not defined:
-            #     #     true_rectxy = (0, 0)
+# def display_full_grid(selected, grid_length, deepness, screen, steepness, full_colour_grid):
+#     # defined = False
+#         # draw_rect(screen, true_rectxy[0]*grid_length+deepness, true_rectxy[1] * grid_length + steepness, (0, 0, 0), grid_length, grid_length)
+#     for row in range(0, 8):
+#         for col in range(0, 8):
+#             # if row == selected[0] and col == selected[1]:
+#             # # if grid_full[row][col] == False:
+#             #     None
+#             #     # if not defined:
+#             #     #     true_rectxy = (0, 0)
             
-            # else:
-            #     # draws a box around the currently selected position
-            #     defined = True
-                # true_rectxy = (row, col)
+#             # else:
+#             #     # draws a box around the currently selected position
+#             #     defined = True
+#                 # true_rectxy = (row, col)
 
-            # (screen, x, y, colour, size_x, size_y)
-            # (screen, (0-8 * 20) + 25, 0-8 * 20 + 15, the colour black, 20, 20)
-            # draws 5 p by 5 p rects
-            draw_full_grid(screen, row*grid_length+deepness, col*grid_length+steepness, 8, 8, 5, full_colour_grid[selected[0]] [selected[1]])
+#             # (screen, x, y, colour, size_x, size_y)
+#             # (screen, (0-8 * 20) + 25, 0-8 * 20 + 15, the colour black, 20, 20)
+#             # draws 5 p by 5 p rects
+#             draw_full_grid(screen, row*grid_length+deepness, col*grid_length+steepness, 8, 8, 5, full_colour_grid[selected[0]] [selected[1]])
 
-    # if true_rectxy != None:
-    draw_rect(screen, selected[0]*grid_length+deepness+2, selected[1] * grid_length + steepness +2, (255, 255, 255), grid_length + 6, grid_length + 6)
-    draw_full_grid(screen, (selected[0])*grid_length+deepness, selected[1]*grid_length+steepness, 8, 8, 5, full_colour_grid[selected[0]] [selected[1]])
+#     # if true_rectxy != None:
+#     draw_rect(screen, selected[0]*grid_length+deepness+2, selected[1] * grid_length + steepness +2, (255, 255, 255), grid_length + 6, grid_length + 6)
+#     draw_full_grid(screen, (selected[0])*grid_length+deepness, selected[1]*grid_length+steepness, 8, 8, 5, full_colour_grid[selected[0]] [selected[1]])
     
-    return selected
+#     return selected
 
-def display_side_grid(grid, grid_length, deepness, screen, steepness):
-    for row in range(0, 8):
-        for col in range(0, 8):
-            # draws 20 by 20 rects
-            draw_rect(screen, row*grid_length+deepness, col * grid_length + steepness, grid[row][col], grid_length, grid_length)
+# def display_side_grid(grid, grid_length, deepness, screen, steepness):
+#     for row in range(0, 8):
+#         for col in range(0, 8):
+#             # draws 20 by 20 rects
+#             draw_rect(screen, row*grid_length+deepness, col * grid_length + steepness, grid[row][col], grid_length, grid_length)
 
 def get_grid_rects(grid, grid_length, deepness):
     for row in range(0, 8):
@@ -203,17 +205,14 @@ def main():
 
         selected = (0, 0)
 
-        full_grid_length = 8
-        grid_full = [[False] * full_grid_length for _ in range(0, full_grid_length)]
-        sprite = [[(0, 0, 0)] * 8] * 8
+        full_grid_length = 64
         # full_colour_grid = [[[[0, 0, 0]] * 8 for _ in range(0, 8)] * full_grid_length for _ in range(0, full_grid_length)]
-        full_colour_grid = [sprite * full_grid_length] * full_grid_length
-        grid_full[0][0] = True
-
-        RECT_full_grid_length = 8
-        RECT_grid_full = [[False] * RECT_full_grid_length for _ in range(0, RECT_full_grid_length)]
-        RECT_grid_full[0][0] = True
-        rect_grid = get_grid_rects(RECT_grid_full, RECT_full_grid_length * 10, 215)
+        full_colour_grid = [ 
+            [ ( 0, 0, 0 ) ]
+            * full_grid_length
+                for _ in range(0, full_grid_length) 
+                ]
+        selected = (0, 0)
 
         # which colour is currently selected to be changed and which colour it has been changed to
         slider_change = NO_COLOUR
@@ -249,22 +248,27 @@ def main():
                 # sets that place to selected, and sets all other places to unselected
 
                 if (mouse_pos[0] >= 215 and mouse_pos[0] <= 790) and (mouse_pos[1] >= 20 and mouse_pos[1] <= 590):
+                    collider_row = int((mouse_pos[0] - 221) / 80)
+                    collider_col = int((mouse_pos[1] - 23) / 80)
+
+                    selected = collider_row, collider_col
                     for row in range(0, 8):
-                        for column in range(0, 8):
-                            if pygame.mouse.get_pressed()[0] and rect_grid[row][column].collidepoint(mouse_pos):
-                                grid_full[row][column] = True
-                            else:
-                                grid_full[row][column] = False
+                        for col in range(0, 8):
+                            grid_row = collider_row * 8 + row
+                            grid_col = collider_col * 8 + col
+                            colour_side_grid[row][col] = full_colour_grid[grid_row][grid_col]
 
                 # changes the side grid when pressed
-                elif (mouse_pos[0] >= 25 and mouse_pos[0] <= 185) and (mouse_pos[1] >= 28 and mouse_pos[1] <= 180):
+                elif (mouse_pos[0] >= 25 and mouse_pos[0] <= 184) and (mouse_pos[1] >= 28 and mouse_pos[1] <= 186):
 
                     collider_row = int((mouse_pos[0] - 25) / 20)
                     collider_col = int((mouse_pos[1] - 28) / 20)
 
+                    selec_row = collider_row + ((selected[0]) * 8)
+                    selec_col = collider_col + ((selected[1]) * 8)
+
                     colour_side_grid[collider_row][collider_col] = current_colour
-                    # full_colour_grid[0][collider_row][collider_col][true_rectxy_tuple[0]][true_rectxy_tuple[1]] = current_colour
-                    full_colour_grid[0][7][63][collider_col] = current_colour
+                    full_colour_grid[selec_row][selec_col] = current_colour
 
                 # changes the colour in the colour bars
                 # red
@@ -330,10 +334,11 @@ def main():
         slider_red_pos, slider_green_pos, slider_blue_pos, current_colour = draw_colour_bar(slider_red_pos, slider_green_pos, slider_blue_pos, current_colour, mouse_pos, slider_change, screen, set_colour_change)
 
         # draws the main grid
-        selected = display_full_grid(selected, full_grid_length * 10, 215, screen, 15, full_colour_grid)
+        foo.main(colour_side_grid, current_colour, full_colour_grid, full_grid_length, screen, selected)
+        # (selected, full_grid_length * 10, 215, screen, 15, full_colour_grid)
 
         # draws the grid on the side of the screen
-        display_side_grid(colour_side_grid, SIDE_GRID_LENGTH * 2.5, 25, screen, 25)
+        # display_side_grid(colour_side_grid, SIDE_GRID_LENGTH * 2.5, 25, screen, 25)
         draw_brushes_and_set_colours(screen, SCREEN_WIDTH, brush_png, bucket_png, tool_selected)
 
         pygame.display.update()
