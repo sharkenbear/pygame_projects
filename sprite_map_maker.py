@@ -26,32 +26,34 @@ def draw_full_grid(screen, startposx, startposy, width, height, tile_size, full_
     for row in range(0, height):
         for column in range(0, width):
             if row < 8 and column < 8:
-                draw_rect(screen, startposx + (row * (tile_size * 2) + tile_size), startposy + (column * (tile_size*2) + tile_size), full_colour_grid[0][row][column], tile_size * 2, tile_size * 2)
+                draw_rect(screen, startposx + (row * (tile_size * 2) + tile_size), startposy + (column * (tile_size*2) + tile_size), full_colour_grid[row][column], tile_size * 2, tile_size * 2)
 
-def display_full_grid(grid_full, grid_length, deepness, screen, steepness, full_colour_grid, true_rectxy):
-    defined = False
+def display_full_grid(selected, grid_length, deepness, screen, steepness, full_colour_grid):
+    # defined = False
         # draw_rect(screen, true_rectxy[0]*grid_length+deepness, true_rectxy[1] * grid_length + steepness, (0, 0, 0), grid_length, grid_length)
     for row in range(0, 8):
         for col in range(0, 8):
-            if grid_full[row][col] == False:
-                if not defined:
-                    true_rectxy = (0, 0)
+            # if row == selected[0] and col == selected[1]:
+            # # if grid_full[row][col] == False:
+            #     None
+            #     # if not defined:
+            #     #     true_rectxy = (0, 0)
             
-            else:
-                # draws a box around the currently selected position
-                defined = True
-                true_rectxy = (row, col)
+            # else:
+            #     # draws a box around the currently selected position
+            #     defined = True
+                # true_rectxy = (row, col)
 
             # (screen, x, y, colour, size_x, size_y)
             # (screen, (0-8 * 20) + 25, 0-8 * 20 + 15, the colour black, 20, 20)
             # draws 5 p by 5 p rects
-            draw_full_grid(screen, row*grid_length+deepness, col*grid_length+steepness, 8, 8, 5, full_colour_grid[true_rectxy[0]] [true_rectxy[1]])
+            draw_full_grid(screen, row*grid_length+deepness, col*grid_length+steepness, 8, 8, 5, full_colour_grid[selected[0]] [selected[1]])
 
-    if true_rectxy != None:
-        draw_rect(screen, true_rectxy[0]*grid_length+deepness+2, true_rectxy[1] * grid_length + steepness +2, (255, 255, 255), grid_length + 6, grid_length + 6)
-        draw_full_grid(screen, (true_rectxy[0])*grid_length+deepness, true_rectxy[1]*grid_length+steepness, 8, 8, 5, full_colour_grid[true_rectxy[0]] [true_rectxy[1]])
+    # if true_rectxy != None:
+    draw_rect(screen, selected[0]*grid_length+deepness+2, selected[1] * grid_length + steepness +2, (255, 255, 255), grid_length + 6, grid_length + 6)
+    draw_full_grid(screen, (selected[0])*grid_length+deepness, selected[1]*grid_length+steepness, 8, 8, 5, full_colour_grid[selected[0]] [selected[1]])
     
-    return true_rectxy
+    return selected
 
 def display_side_grid(grid, grid_length, deepness, screen, steepness):
     for row in range(0, 8):
@@ -199,13 +201,13 @@ def main():
 
         # defines the grids + rect grids
 
-        true_rectxy_tuple = (0, 0)
+        selected = (0, 0)
 
         full_grid_length = 8
         grid_full = [[False] * full_grid_length for _ in range(0, full_grid_length)]
-        sprite = [[[(0, 0, 0)] * 8] * 8]
+        sprite = [[(0, 0, 0)] * 8] * 8
         # full_colour_grid = [[[[0, 0, 0]] * 8 for _ in range(0, 8)] * full_grid_length for _ in range(0, full_grid_length)]
-        full_colour_grid = [[sprite * 8] * 8]
+        full_colour_grid = [sprite * full_grid_length] * full_grid_length
         grid_full[0][0] = True
 
         RECT_full_grid_length = 8
@@ -262,7 +264,7 @@ def main():
 
                     colour_side_grid[collider_row][collider_col] = current_colour
                     # full_colour_grid[0][collider_row][collider_col][true_rectxy_tuple[0]][true_rectxy_tuple[1]] = current_colour
-                    full_colour_grid[0][0][0][0][collider_col] = current_colour
+                    full_colour_grid[0][7][63][collider_col] = current_colour
 
                 # changes the colour in the colour bars
                 # red
@@ -328,7 +330,7 @@ def main():
         slider_red_pos, slider_green_pos, slider_blue_pos, current_colour = draw_colour_bar(slider_red_pos, slider_green_pos, slider_blue_pos, current_colour, mouse_pos, slider_change, screen, set_colour_change)
 
         # draws the main grid
-        true_rectxy_tuple = display_full_grid(grid_full, full_grid_length * 10, 215, screen, 15, full_colour_grid, true_rectxy_tuple)
+        selected = display_full_grid(selected, full_grid_length * 10, 215, screen, 15, full_colour_grid)
 
         # draws the grid on the side of the screen
         display_side_grid(colour_side_grid, SIDE_GRID_LENGTH * 2.5, 25, screen, 25)
