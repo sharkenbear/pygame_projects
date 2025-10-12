@@ -17,46 +17,43 @@ def draw_rect(screen, x, y, colour, size_x, size_y):
     square = pygame.Rect((x, y, size_x, size_y))
     pygame.draw.rect(screen, colour, square)
 
-def draw_full_grid(screen, startposx, startposy, tile_size, full_colour_grid):
+def draw_full_grid(screen, startposx, startposy, tile_size, full_colour_grid, row2, col2, wowow = False):
 
-    for row in range(0, 8):
-        for column in range(0, 8):
-            if full_colour_grid[0] == 0:
-                print("ERROR! ERROR! ERROR! ERROR! ERROR! ERROR! ERROR! ERROR! ERROR! ERROR!")
-                print("")
-            else:
-                # print(full_colour_grid[0])
-                # print("aojnf :)")
-                draw_rect(screen, startposx + (row * (tile_size * 2) + tile_size), startposy + (column * (tile_size*2) + tile_size), full_colour_grid[row][column], tile_size * 2, tile_size * 2)
-
-def display_full_grid(selected, grid_length, deepness, screen, steepness, full_colour_grid):
     for row in range(0, 8):
         for col in range(0, 8):
-            # print(full_colour_grid[0])
-            # print("am")
-            draw_full_grid(screen, row*grid_length+deepness, col*grid_length+steepness, 5, full_colour_grid)
+            # print (full_colour_grid[0])
+            # print("")
+            if wowow:
+                draw_rect(screen, startposx + (row * (tile_size * 2) + tile_size), startposy + (col * (tile_size*2) + tile_size), full_colour_grid[row][col], tile_size * 2, tile_size * 2)
+            else:
+                colrow = row2 * 8 + row
+                colcol = col2 * 8 + col
+                draw_rect(screen, startposx + (row * (tile_size * 2) + tile_size), startposy + (col * (tile_size*2) + tile_size), full_colour_grid[colrow][colcol], tile_size * 2, tile_size * 2)
 
-    draw_rect(screen, selected[0]*grid_length+deepness+2, selected[1] * grid_length + steepness +2, (255, 255, 255), grid_length + 6, grid_length + 6)
-    draw_full_grid(screen, (selected[0])*grid_length+deepness, selected[1]*grid_length+steepness, 5, full_colour_grid[selected[0]][selected[1]])
+                    # draw_rect(screen, startposx + (row * (tile_size * 2) + tile_size), startposy + (col * (tile_size*2) + tile_size), full_colour_grid [row*(selected[1]+1)] [col*(selected[0]+1)], tile_size * 2, tile_size * 2)
+
+                    # draw_rect(screen, startposx + (row * (tile_size * 2) + tile_size), startposy + (column * (tile_size*2) + tile_size), full_colour_grid[row*(selected[1]+1)][column*(selected[0]+1)], tile_size * 2, tile_size * 2)
+
+def display_full_grid(grid_length, deepness, screen, steepness, full_colour_grid):
+    for row in range(0, 8):
+        for col in range(0, 8):
+            draw_full_grid(screen, row*grid_length+deepness, col*grid_length+steepness, 5, full_colour_grid, row, col)
+            # print("ahhhhuummmmmmmmmmmmmmmmmmmmmmmmmmmmmm")
+
+        # draw_rect(screen, selected[0]*grid_length+deepness+2, selected[1] * grid_length + steepness +2, (255, 255, 255), grid_length + 6, grid_length + 6)
+        # draw_full_grid(screen, (selected[0])*grid_length+deepness, selected[1]*grid_length+steepness, 5, full_colour_grid)
 
 def main():
-    print()
+
     current_colour = (0, 0, 255)
     colour_side_grid = [[(0, 0, 0)] * SIDE_GRID_LENGTH for _ in range(0, SIDE_GRID_LENGTH)]
     full_grid_length = 64
 
-    # full_colour_grid = [
-    
-    #     [
-    #         [  (0, 0, 0)  ]
-    #         * 8 
-    #         for _ in range(0, full_grid_length)
-    #     ]
-    #     * full_grid_length 
-    #     for _ in range(0, full_grid_length)
-    # ]
-
-    full_colour_grid = [ [( 0, 0, 0 )] * full_grid_length for _ in range(0, full_grid_length) ]
+    full_colour_grid = [ 
+        [ ( 0, 0, 0 ) ]
+          * full_grid_length
+            for _ in range(0, full_grid_length) 
+            ]
 
     selected = (0, 0)
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -79,9 +76,22 @@ def main():
                     collider_row = int((mouse_pos[0] - 25) / 20)
                     collider_col = int((mouse_pos[1] - 28) / 20)
 
-                    colour_side_grid[collider_row][collider_col] = current_colour
+                    selec_row = collider_row * (selected[0] + 1)
+                    selec_col = collider_col * (selected[1] + 1)
                     
-                    print("O_o")
+                    print(collider_row, "collide", collider_col)
+                    print (selec_row, "stopper", selec_col)
+
+                    colour_side_grid[collider_row][collider_col] = current_colour
+                    full_colour_grid[selec_row][selec_col] = current_colour
+
+                elif (mouse_pos[0] >= 221 and mouse_pos[0] <= 860) and (mouse_pos[1] >= 23 and mouse_pos[1] <= 661):
+                    collider_row = int((mouse_pos[0] - 221) / 80)
+                    collider_col = int((mouse_pos[1] - 23) / 80)
+
+                    selected = collider_row, collider_col
+
+                    # full_colour_grid[collider_row][collider_col] = current_colour
 
         screen.fill((45, 52, 92))
 
@@ -89,7 +99,7 @@ def main():
         draw_rect(screen, 80, 375, current_colour, 50, 50)
 
 
-        display_full_grid(selected, full_grid_length * 10 / 8, 215, screen, 15, full_colour_grid)
+        display_full_grid(full_grid_length * 10 / 8, 215, screen, 15, full_colour_grid)
         display_side_grid(colour_side_grid, SIDE_GRID_LENGTH * 2.5, 25, screen, 25)
 
         pygame.display.update()
