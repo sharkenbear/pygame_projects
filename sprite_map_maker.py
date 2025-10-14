@@ -37,8 +37,8 @@ CYAN = (0, 255, 255)
 SIDE_GRID_LENGTH = 8
 
 def save_map(full_colour_grid, file_created):
-    sprite_map_maker_essential.set_file(full_colour_grid, file_created)
-    print("saved to grid_file.json!")
+    file_name = sprite_map_maker_essential.set_file(full_colour_grid, file_created)
+    print("saved to ", sprite_map_maker_essential.remove_imperfections(file_name), "!", sep="")
 
 def draw_opacity_text(screen, x, y, text, colour, font_size, opacity = 255):
     font = pygame.font.SysFont('arial', font_size)
@@ -237,21 +237,22 @@ def main():
             * full_grid_length
                 for _ in range(0, full_grid_length) 
                 ]
-
-        if os.path.exists('grid_file.json'):
-            num = 0
-            file_created = True
-            with open('grid_file.json', 'r') as file:
+        resolved = False
+        while not resolved:
+            file_name = input("if you wish to load a file, please enter its name, such as 'grid_file.json'. otherwise enter 'new file'\n")
+        
+            if os.path.exists(file_name):
+                resolved = True
+                file_created = True
+            elif file_name == "new file":
+                resolved = True
+                file_created = False
+            else:
+                print("error, please try again.")
+        if file_created:
+            with open(file_name, 'r') as file:
                 python_obj = json.load(file)
-            for _ in full_colour_grid:
-                full_colour_grid[0] = list(python_obj['content_0'])
-
-                num = num + 1
-        else:
-            file_created = False
-
-        print (type(full_colour_grid[0]))
-        print (full_colour_grid[0])
+                full_colour_grid = python_obj['contents']
 
         selected = (0, 0)
 
