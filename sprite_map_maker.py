@@ -11,7 +11,9 @@ SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 700
 
 FILL = 0
-BRUSH = 1
+PEN = 1
+COLOUR_PICKER = 2
+BRUSH = 3
 
 NO_COLOUR = 0
 RED_COLOUR = 1
@@ -51,12 +53,6 @@ def draw_centered_text(screen, x, y, text, colour, font_size):
     text = font.render(str(text), True, colour)
     text_rect = text.get_rect(center=(x, y))
     screen.blit(text, text_rect)
-
-def get_grid_rects(grid, grid_length, deepness):
-    for row in range(0, 8):
-        for column in range(0, 8):
-            grid[row][column] = pygame.Rect((row * grid_length + deepness, column * grid_length + 15, grid_length, grid_length))
-    return grid
 
 def draw_colour_bar(slider_pos_red, slider_pos_green, slider_pos_blue, current_colour, mouse_pos, slider_change, screen, colour_change):
     for row in range(25, 185):
@@ -109,32 +105,62 @@ def draw_colour_bar(slider_pos_red, slider_pos_green, slider_pos_blue, current_c
 
     return red_return, green_return, blue_return, current_colour
 
-def draw_brushes_and_set_colours(screen, screen_width, brush_png, bucket_png, tool_selected):
+def draw_brushes_and_set_colours(screen, screen_width, pen_png, bucket_png, tool_selected):
 
-    if False:
-        # draws the brush and the fill bucket
-        screen.blit(brush_png, (screen_width / 2 - 225, 0))
-        screen.blit(bucket_png, (screen_width / 2 - 225, 0))
-
-    if tool_selected == BRUSH:
-        brush_colour = (136, 10, 232)
+    if tool_selected == PEN:
+        pen_colour = (136, 10, 232)
         bucket_colour = (0, 0, 0)
+        colour_picker_colour = (0, 0, 0)
+        brush_colour = (0, 0, 0)
 
     elif tool_selected == FILL:
+        pen_colour = (0, 0, 0)
         bucket_colour = (136, 10, 232)
+        colour_picker_colour = (0, 0, 0)
         brush_colour = (0, 0, 0)
+    
+    elif tool_selected == COLOUR_PICKER:
+        pen_colour = (0, 0, 0)
+        bucket_colour = (0, 0, 0)
+        colour_picker_colour = (136, 10, 232)
+        brush_colour = (0, 0, 0)
+
+    elif tool_selected == BRUSH:
+        pen_colour = (0, 0, 0)
+        bucket_colour = (0, 0, 0)
+        colour_picker_colour = (0, 0, 0)
+        brush_colour = (136, 10, 232)
 
     # draws the boxes around the tools
     draw_rect(screen, 25, 475, (244, 234, 87), 65, 65)
-    draw_rect(screen, 30, 480, brush_colour, 55, 55)
+    draw_rect(screen, 30, 480, pen_colour, 55, 55)
 
     draw_rect(screen, 115, 475, (244, 234, 87), 65, 65)
     draw_rect(screen, 120, 480, bucket_colour, 55, 55)
 
+    draw_rect(screen, 25, 565, (244, 234, 87), 65, 65)
+    draw_rect(screen, 30, 570, colour_picker_colour, 55, 55)
+
+    draw_rect(screen, 115, 565, (244, 234, 87), 65, 65)
+    draw_rect(screen, 120, 570, brush_colour, 55, 55)
+
+    # # draws the tools
+    # screen.blit(pen_png, (screen_width / 2 - 225, 0))
+    # screen.blit(bucket_png, (screen_width / 2 - 225, 0))
+    # screen.blit(colour_picker_png, (screen_width / 2 - 225, 0))
+    # screen.blit(brush_png, (screen_width / 2 - 225, 0))
+    draw_centered_text(screen, 57, 505, "pen", (255, 255, 255), 20)
+    draw_centered_text(screen, 147, 490, "broken", (255, 255, 255), 20)
+    draw_centered_text(screen, 147, 510, "fill", (255, 255, 255), 20)
+    draw_centered_text(screen, 57, 585, "colour", (255, 255, 255), 20)
+    draw_centered_text(screen, 57, 605, "picker", (255, 255, 255), 20)
+    draw_centered_text(screen, 147, 595, "brush", (255, 255, 255), 20)
+
+
     # draws the boxes of set colours
-    for row in range(890, 1101, 100):
-        for column in range(275, 576, 100):
-            draw_rect(screen, row, column, (174, 174, 174), 80, 80)
+    for row in range(1, 4):
+        for column in range(1, 5, 1):
+            draw_rect(screen, row * 100 + 790, column * 100 + 175, (174, 174, 174), 80, 80)
     
     # terqoise: 25x 580y to 60x 615y
     draw_rect(screen, 895, 480, (0, 170, 170), 70, 70)
@@ -174,11 +200,11 @@ def draw_rect(screen, x, y, colour, size_x, size_y):
     square = pygame.Rect((x, y, size_x, size_y))
     pygame.draw.rect(screen, colour, square)
 
-def get_slider_colour(original_colour, in_tuple, anything = True):
+def get_slider_colour(original_num, in_tuple, anything = True):
     in_min, in_max, out_min, out_max = in_tuple
     if anything:
-        return (original_colour - in_min) * (out_max - out_min) // (in_max - in_min) + out_min
-    return original_colour
+        return (original_num - in_min) * (out_max - out_min) // (in_max - in_min) + out_min
+    return original_num
 
 # displays coloured text on the screen
 def type_msg(screen, font, x, y, text, colour):
@@ -192,17 +218,16 @@ def main():
     if True:
         screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
-        out_of_range = False
+        out_of_range = NO_COLOUR
 
         # defines the colour slider variables      
         current_colour = (255, 0, 0)
         
-        slider_red_pos = 25
+        slider_red_pos = 180
         slider_green_pos = 25
         slider_blue_pos = 25
 
         # defines the grids + rect grids
-
         selected = (0, 0)
 
         full_grid_length = 64
@@ -213,89 +238,74 @@ def main():
                 for _ in range(0, full_grid_length) 
                 ]
         
-        x = full_colour_grid
-        print (full_colour_grid[0])
-        print("")
-        if os.path.exists('grid_file.json'):
+        if os.path.exists('grid_fil.json'):
             file_created = True
             with open('grid_file.json', 'r') as file:
                 python_obj = json.load(file)
-            full_colour_grid[0] = python_obj['content_0']
-            full_colour_grid[1] = python_obj['content_1']
-            full_colour_grid[2] = python_obj['content_2']
-            full_colour_grid[3] = python_obj['content_3']
-            full_colour_grid[4] = python_obj['content_4']
-            full_colour_grid[5] = python_obj['content_5']
-            full_colour_grid[6] = python_obj['content_6']
-            full_colour_grid[7] = python_obj['content_7']
-            full_colour_grid[8] = python_obj['content_8']
-            full_colour_grid[9] = python_obj['content_9']
-            full_colour_grid[10] = python_obj['content_10']
-            full_colour_grid[11] = python_obj['content_11']
-            full_colour_grid[12] = python_obj['content_12']
-            full_colour_grid[13] = python_obj['content_13']
-            full_colour_grid[14] = python_obj['content_14']
-            full_colour_grid[15] = python_obj['content_15']
-            full_colour_grid[16] = python_obj['content_16']
-            full_colour_grid[17] = python_obj['content_17']
-            full_colour_grid[18] = python_obj['content_18']
-            full_colour_grid[19] = python_obj['content_19']
-            full_colour_grid[20] = python_obj['content_20']
-            full_colour_grid[21] = python_obj['content_21']
-            full_colour_grid[22] = python_obj['content_22']
-            full_colour_grid[23] = python_obj['content_23']
-            full_colour_grid[24] = python_obj['content_24']
-            full_colour_grid[25] = python_obj['content_25']
-            full_colour_grid[26] = python_obj['content_26']
-            full_colour_grid[27] = python_obj['content_27']
-            full_colour_grid[28] = python_obj['content_28']
-            full_colour_grid[29] = python_obj['content_29']
-            full_colour_grid[30] = python_obj['content_30']
-            full_colour_grid[31] = python_obj['content_31']
-            full_colour_grid[32] = python_obj['content_32']
-            full_colour_grid[33] = python_obj['content_33']
-            full_colour_grid[34] = python_obj['content_34']
-            full_colour_grid[35] = python_obj['content_35']
-            full_colour_grid[36] = python_obj['content_36']
-            full_colour_grid[37] = python_obj['content_37']
-            full_colour_grid[38] = python_obj['content_38']
-            full_colour_grid[39] = python_obj['content_39']
-            full_colour_grid[40] = python_obj['content_40']
-            full_colour_grid[41] = python_obj['content_41']
-            full_colour_grid[42] = python_obj['content_42']
-            full_colour_grid[43] = python_obj['content_43']
-            full_colour_grid[44] = python_obj['content_44']
-            full_colour_grid[45] = python_obj['content_45']
-            full_colour_grid[46] = python_obj['content_46']
-            full_colour_grid[47] = python_obj['content_47']
-            full_colour_grid[48] = python_obj['content_48']
-            full_colour_grid[49] = python_obj['content_49']
-            full_colour_grid[50] = python_obj['content_50']
-            full_colour_grid[51] = python_obj['content_51']
-            full_colour_grid[52] = python_obj['content_52']
-            full_colour_grid[53] = python_obj['content_53']
-            full_colour_grid[54] = python_obj['content_54']
-            full_colour_grid[55] = python_obj['content_55']
-            full_colour_grid[56] = python_obj['content_56']
-            full_colour_grid[57] = python_obj['content_57']
-            full_colour_grid[58] = python_obj['content_58']
-            full_colour_grid[59] = python_obj['content_59']
-            full_colour_grid[60] = python_obj['content_60']
-            full_colour_grid[61] = python_obj['content_61']
-            full_colour_grid[62] = python_obj['content_62']
+            content = python_obj['content_0'], python_obj['content_1'], python_obj['content_2'], python_obj['content_3'], python_obj['content_4'],
+            python_obj['content_5'], python_obj['content_6'], python_obj['content_7'], python_obj['content_8'], python_obj['content_9'], python_obj['content_10'],
+            python_obj['content_11'],
+            full_colour_grid[12] = python_obj['content_12'],
+            full_colour_grid[13] = python_obj['content_13'],
+            full_colour_grid[14] = python_obj['content_14'],
+            full_colour_grid[15] = python_obj['content_15'],
+            full_colour_grid[16] = python_obj['content_16'],
+            full_colour_grid[17] = python_obj['content_17'],
+            full_colour_grid[18] = python_obj['content_18'],
+            full_colour_grid[19] = python_obj['content_19'],
+            full_colour_grid[20] = python_obj['content_20'],
+            full_colour_grid[21] = python_obj['content_21'],
+            full_colour_grid[22] = python_obj['content_22'],
+            full_colour_grid[23] = python_obj['content_23'],
+            full_colour_grid[24] = python_obj['content_24'],
+            full_colour_grid[25] = python_obj['content_25'],
+            full_colour_grid[26] = python_obj['content_26'],
+            full_colour_grid[27] = python_obj['content_27'],
+            full_colour_grid[28] = python_obj['content_28'],
+            full_colour_grid[29] = python_obj['content_29'],
+            full_colour_grid[30] = python_obj['content_30'],
+            full_colour_grid[31] = python_obj['content_31'],
+            full_colour_grid[32] = python_obj['content_32'],
+            full_colour_grid[33] = python_obj['content_33'],
+            full_colour_grid[34] = python_obj['content_34'],
+            full_colour_grid[35] = python_obj['content_35'],
+            full_colour_grid[36] = python_obj['content_36'],
+            full_colour_grid[37] = python_obj['content_37'],
+            full_colour_grid[38] = python_obj['content_38'],
+            full_colour_grid[39] = python_obj['content_39'],
+            full_colour_grid[40] = python_obj['content_40'],
+            full_colour_grid[41] = python_obj['content_41'],
+            full_colour_grid[42] = python_obj['content_42'],
+            full_colour_grid[43] = python_obj['content_43'],
+            full_colour_grid[44] = python_obj['content_44'],
+            full_colour_grid[45] = python_obj['content_45'],
+            full_colour_grid[46] = python_obj['content_46'],
+            full_colour_grid[47] = python_obj['content_47'],
+            full_colour_grid[48] = python_obj['content_48'],
+            full_colour_grid[49] = python_obj['content_49'],
+            full_colour_grid[50] = python_obj['content_50'],
+            full_colour_grid[51] = python_obj['content_51'],
+            full_colour_grid[52] = python_obj['content_52'],
+            full_colour_grid[53] = python_obj['content_53'],
+            full_colour_grid[54] = python_obj['content_54'],
+            full_colour_grid[55] = python_obj['content_55'],
+            full_colour_grid[56] = python_obj['content_56'],
+            full_colour_grid[57] = python_obj['content_57'],
+            full_colour_grid[58] = python_obj['content_58'],
+            full_colour_grid[59] = python_obj['content_59'],
+            full_colour_grid[60] = python_obj['content_60'],
+            full_colour_grid[61] = python_obj['content_61'],
+            full_colour_grid[62] = python_obj['content_62'],
             full_colour_grid[63] = python_obj['content_63']
         else:
             file_created = False
-        
-        if full_colour_grid == x:
-            print("????????????")
-        print (full_colour_grid[0])
-
 
         selected = (0, 0)
 
         # which colour is currently selected to be changed and which colour it has been changed to
         slider_change = NO_COLOUR
+        slider_change2 = NO_COLOUR
+        has_happened = False
         set_colour_change = None
 
         # width of the tiles in the side grid
@@ -314,6 +324,8 @@ def main():
 
         cmd = False
 
+        drawing = False
+
     running = True
     while running:
 
@@ -327,6 +339,7 @@ def main():
             # if escape or quit, ends the while loop which leads to the game quiting
             if key[pygame.K_ESCAPE] or event.type == pygame.QUIT:
                 running = False
+            
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LMETA or event.key == pygame.K_RMETA:
                     cmd = True
@@ -349,123 +362,163 @@ def main():
                     trying_delete = False
 
             mouse_pos = pygame.mouse.get_pos()
-            if event.type == pygame.MOUSEBUTTONDOWN or out_of_range:
+            if event.type == pygame.MOUSEBUTTONDOWN or out_of_range != NO_COLOUR or drawing:
 
-                # changes the selected sprite#
+                    # changes the colour in the colour bars
+                    if out_of_range == RED_COLOUR or event.type == pygame.MOUSEBUTTONDOWN:
+                        # red
+                        if (mouse_pos[0] >= 25 and mouse_pos[0] <= 180) and (mouse_pos[1] >= 210 and mouse_pos[1] <= 240):
+                            slider_change = RED_COLOUR
+                    if out_of_range == GREEN_COLOUR or event.type == pygame.MOUSEBUTTONDOWN:
+                        # green
+                        if (mouse_pos[0] >= 25 and mouse_pos[0] <= 180) and (mouse_pos[1] >= 270 and mouse_pos[1] <= 300):
+                            slider_change = GREEN_COLOUR
+                    if out_of_range == BLUE_COLOUR or event.type == pygame.MOUSEBUTTONDOWN:
+                        # blue
+                        if (mouse_pos[0] >= 25 and mouse_pos[0] <= 180) and (mouse_pos[1] >= 330 and mouse_pos[1] <= 360):
+                            slider_change = BLUE_COLOUR
+                    
+                    
+                    if out_of_range == NO_COLOUR:
 
-                if (mouse_pos[0] >= 221 and mouse_pos[0] <= 860) and (mouse_pos[1] >= 23 and mouse_pos[1] <= 660):
-                    collider_row = int((mouse_pos[0] - 221) / 80)
-                    collider_col = int((mouse_pos[1] - 23) / 80)
+                        # changes the selected sprite
+                        if (mouse_pos[0] >= 221 and mouse_pos[0] <= 860) and (mouse_pos[1] >= 23 and mouse_pos[1] <= 660):
+                            collider_row = int((mouse_pos[0] - 221) / 80)
+                            collider_col = int((mouse_pos[1] - 23) / 80)
 
-                    selected = collider_row, collider_col
-                    print(mouse_pos)
-                    for row in range(0, 8):
-                        for col in range(0, 8):
-                            grid_row = collider_row * 8 + row
-                            grid_col = collider_col * 8 + col
-                            colour_side_grid[row][col] = full_colour_grid[grid_row][grid_col]
+                            selected = collider_row, collider_col
+                            for row in range(0, 8):
+                                for col in range(0, 8):
+                                    grid_row = collider_row * 8 + row
+                                    grid_col = collider_col * 8 + col
+                                    colour_side_grid[row][col] = full_colour_grid[grid_row][grid_col]
 
-                # changes the side grid when pressed
-                elif (mouse_pos[0] >= 25 and mouse_pos[0] <= 184) and (mouse_pos[1] >= 28 and mouse_pos[1] <= 186):
+                        # changes the side grid using whatever tool is selected
+                        elif (mouse_pos[0] >= 25 and mouse_pos[0] <= 184) and (mouse_pos[1] >= 28 and mouse_pos[1] <= 186):
+                            collider_row = int((mouse_pos[0] - 25) / 20)
+                            collider_col = int((mouse_pos[1] - 28) / 20)
 
-                    collider_row = int((mouse_pos[0] - 25) / 20)
-                    collider_col = int((mouse_pos[1] - 28) / 20)
+                            if tool_selected == PEN or tool_selected == BRUSH:
+                                selec_row = collider_row + ((selected[0]) * 8)
+                                selec_col = collider_col + ((selected[1]) * 8)
 
-                    selec_row = collider_row + ((selected[0]) * 8)
-                    selec_col = collider_col + ((selected[1]) * 8)
+                                colour_side_grid[collider_row][collider_col] = current_colour
+                                full_colour_grid[selec_row][selec_col] = current_colour
 
-                    colour_side_grid[collider_row][collider_col] = current_colour
-                    full_colour_grid[selec_row][selec_col] = current_colour
+                                if tool_selected == BRUSH:
+                                    drawing = True
 
-                # changes the colour in the colour bars
-                # red
-                elif (mouse_pos[0] >= 25 and mouse_pos[0] <= 180) and (mouse_pos[1] >= 210 and mouse_pos[1] <= 240):
-                    slider_change = RED_COLOUR
-                # green
-                elif (mouse_pos[0] >= 25 and mouse_pos[0] <= 180) and (mouse_pos[1] >= 270 and mouse_pos[1] <= 300):
-                    slider_change = GREEN_COLOUR
-                # blue
-                elif (mouse_pos[0] >= 25 and mouse_pos[0] <= 180) and (mouse_pos[1] >= 330 and mouse_pos[1] <= 360):
-                    slider_change = BLUE_COLOUR
+                            elif tool_selected == COLOUR_PICKER:
+                                current_colour = colour_side_grid[collider_row][collider_col]
+                                slider_red_pos = get_slider_colour(current_colour[0], (0, 255, 25, 180), True)
+                                slider_blue_pos = get_slider_colour(current_colour[1], (0, 255, 25, 180), True)
+                                slider_green_pos = get_slider_colour(current_colour[2], (0, 255, 25, 180), True)
 
+                            elif tool_selected == FILL:
+                                print("fill tool is broken sorry")
 
-                # changes the colour to one of the set colours if they are pressed
-                # red
-                elif (mouse_pos[0] >= 890 and mouse_pos[0] <= 970) and (mouse_pos[1] >= 275 and mouse_pos[1] <= 355):
-                    current_colour = RED
-                    set_colour_change = current_colour
-                # green
-                elif (mouse_pos[0] >= 990 and mouse_pos[0] <= 1070) and (mouse_pos[1] >= 275 and mouse_pos[1] <= 355):
-                    current_colour = GREEN
-                    set_colour_change = current_colour
-                # blue
-                elif (mouse_pos[0] >= 1090 and mouse_pos[0] <= 1170) and (mouse_pos[1] >= 275 and mouse_pos[1] <= 355):
-                    current_colour = BLUE
-                    set_colour_change = current_colour
+                        # changes the colour to one of the set colours if they are pressed
+                        # red
+                        elif (mouse_pos[0] >= 890 and mouse_pos[0] <= 970) and (mouse_pos[1] >= 275 and mouse_pos[1] <= 355):
+                            current_colour = RED
+                            set_colour_change = current_colour
+                        # green
+                        elif (mouse_pos[0] >= 990 and mouse_pos[0] <= 1070) and (mouse_pos[1] >= 275 and mouse_pos[1] <= 355):
+                            current_colour = GREEN
+                            set_colour_change = current_colour
+                        # blue
+                        elif (mouse_pos[0] >= 1090 and mouse_pos[0] <= 1170) and (mouse_pos[1] >= 275 and mouse_pos[1] <= 355):
+                            current_colour = BLUE
+                            set_colour_change = current_colour
 
-                # terqoise
-                elif (mouse_pos[0] >= 890 and mouse_pos[0] <= 970) and (mouse_pos[1] >= 475 and mouse_pos[1] <= 555):
-                    current_colour = TERQOISE
-                    set_colour_change = current_colour
-                # orange
-                elif (mouse_pos[0] >= 990 and mouse_pos[0] <= 1070) and (mouse_pos[1] >= 475 and mouse_pos[1] <= 555):
-                    current_colour = ORANGE
-                    set_colour_change = current_colour
-                # pink
-                elif (mouse_pos[0] >= 1090 and mouse_pos[0] <= 1170) and (mouse_pos[1] >= 475 and mouse_pos[1] <= 555):
-                    current_colour = PINK
-                    set_colour_change = current_colour
+                        # terqoise
+                        elif (mouse_pos[0] >= 890 and mouse_pos[0] <= 970) and (mouse_pos[1] >= 475 and mouse_pos[1] <= 555):
+                            current_colour = TERQOISE
+                            set_colour_change = current_colour
+                        # orange
+                        elif (mouse_pos[0] >= 990 and mouse_pos[0] <= 1070) and (mouse_pos[1] >= 475 and mouse_pos[1] <= 555):
+                            current_colour = ORANGE
+                            set_colour_change = current_colour
+                        # pink
+                        elif (mouse_pos[0] >= 1090 and mouse_pos[0] <= 1170) and (mouse_pos[1] >= 475 and mouse_pos[1] <= 555):
+                            current_colour = PINK
+                            set_colour_change = current_colour
 
-                # yellow
-                elif (mouse_pos[0] >= 890 and mouse_pos[0] <= 970) and (mouse_pos[1] >= 375 and mouse_pos[1] <= 455):
-                    current_colour = YELLOW
-                    set_colour_change = current_colour
-                # purple
-                elif (mouse_pos[0] >= 990 and mouse_pos[0] <= 1070) and (mouse_pos[1] >= 375 and mouse_pos[1] <= 455):
-                    current_colour = PURPLE
-                    set_colour_change = current_colour
-                # cyan
-                elif (mouse_pos[0] >= 1090 and mouse_pos[0] <= 1170) and (mouse_pos[1] >= 375 and mouse_pos[1] <= 455):
-                    current_colour = CYAN
-                    set_colour_change = current_colour
+                        # yellow
+                        elif (mouse_pos[0] >= 890 and mouse_pos[0] <= 970) and (mouse_pos[1] >= 375 and mouse_pos[1] <= 455):
+                            current_colour = YELLOW
+                            set_colour_change = current_colour
+                        # purple
+                        elif (mouse_pos[0] >= 990 and mouse_pos[0] <= 1070) and (mouse_pos[1] >= 375 and mouse_pos[1] <= 455):
+                            current_colour = PURPLE
+                            set_colour_change = current_colour
+                        # cyan
+                        elif (mouse_pos[0] >= 1090 and mouse_pos[0] <= 1170) and (mouse_pos[1] >= 375 and mouse_pos[1] <= 455):
+                            current_colour = CYAN
+                            set_colour_change = current_colour
 
-                # black
-                elif (mouse_pos[0] >= 890 and mouse_pos[0] <= 970) and (mouse_pos[1] >= 575 and mouse_pos[1] <= 655):
-                    current_colour = BLACK
-                    set_colour_change = current_colour
-                # white
-                elif (mouse_pos[0] >= 990 and mouse_pos[0] <= 1070) and (mouse_pos[1] >= 575 and mouse_pos[1] <= 655):
-                    current_colour = WHITE
-                    set_colour_change = current_colour
-                # grey
-                elif (mouse_pos[0] >= 1090 and mouse_pos[0] <= 1170) and (mouse_pos[1] >= 575 and mouse_pos[1] <= 655):
-                    current_colour = GREY
-                    set_colour_change = current_colour
+                        # black
+                        elif (mouse_pos[0] >= 890 and mouse_pos[0] <= 970) and (mouse_pos[1] >= 575 and mouse_pos[1] <= 655):
+                            current_colour = BLACK
+                            set_colour_change = current_colour
+                        # white
+                        elif (mouse_pos[0] >= 990 and mouse_pos[0] <= 1070) and (mouse_pos[1] >= 575 and mouse_pos[1] <= 655):
+                            current_colour = WHITE
+                            set_colour_change = current_colour
+                        # grey
+                        elif (mouse_pos[0] >= 1090 and mouse_pos[0] <= 1170) and (mouse_pos[1] >= 575 and mouse_pos[1] <= 655):
+                            current_colour = GREY
+                            set_colour_change = current_colour
 
-                # changes the selected tool to whatever brush is clicked
-                # fill/bucket tool
-                elif (mouse_pos[0] >= 116 and mouse_pos[0] <= 180) and (mouse_pos[1] >= 478 and mouse_pos[1] <= 541):
-                    tool_selected = FILL
-                # brush tool
-                elif (mouse_pos[0] >= 26 and mouse_pos[0] <= 89) and (mouse_pos[1] >= 478 and mouse_pos[1] <= 541):
-                    tool_selected = BRUSH
+                        # changes the selected tool to whatever brush is clicked
+                        # fill/bucket tool
+                        elif (mouse_pos[0] >= 116 and mouse_pos[0] <= 180) and (mouse_pos[1] >= 478 and mouse_pos[1] <= 541):
+                            tool_selected = FILL
+                        # brush tool
+                        elif (mouse_pos[0] >= 26 and mouse_pos[0] <= 89) and (mouse_pos[1] >= 478 and mouse_pos[1] <= 541):
+                            tool_selected = PEN
+                        # colour picker tool
+                        elif (mouse_pos[0] >= 26 and mouse_pos[0] <= 89) and (mouse_pos[1] >= 567 and mouse_pos[1] <= 631):
+                            tool_selected = COLOUR_PICKER
 
             if event.type == pygame.MOUSEBUTTONUP:
+                slider_change2 = NO_COLOUR
                 slider_change = NO_COLOUR
-                out_of_range = False
-            if (mouse_pos[0] <= 25 or mouse_pos[0] > 180) and slider_change != NO_COLOUR:
+                out_of_range = NO_COLOUR
+                has_happened = False
+                drawing = False
+
+            if (mouse_pos[0] < 25 or mouse_pos[0] > 180) and slider_change != NO_COLOUR:
+                if mouse_pos[0] < 25:
+                    if slider_change == RED_COLOUR:
+                        slider_red_pos = 25
+                    elif slider_change == GREEN_COLOUR:
+                        slider_green_pos = 25
+                    elif slider_change == BLUE_COLOUR:
+                        slider_blue_pos = 25
+                else:
+                    if slider_change == RED_COLOUR:
+                        slider_red_pos = 180
+                    elif slider_change == GREEN_COLOUR:
+                        slider_green_pos = 180
+                    elif slider_change == BLUE_COLOUR:
+                        slider_blue_pos = 180
+
+                if has_happened:
+                    slider_change2 = slider_change
+                has_happened = True
                 slider_change = NO_COLOUR
-                out_of_range = True
+                out_of_range = slider_change2
 
         screen.fill((45, 52, 92))
 
         if mouse_pos == None:
             mouse_pos = pygame.mouse.get_pos()
-
-                                                # --display from here onward!--
+        
+        # --display from here onward!--                                                 # --display from here onward!--                                                  # --display from here onward!--
 
         if saved_text:
-            t = t - 0.75
+            t = t - 1.5
 
             if t < 128:
                 opacity = int(t) + 55
@@ -474,7 +527,6 @@ def main():
                 saved_text = False
                 t = 255
             draw_opacity_text(screen, 900, 20, "saved!", (0, 0, 0), 40, opacity)
-            
 
         if trying_delete and not saved_text:
             draw_centered_text(screen, 90, 560, "press command +", (0, 0, 0), 20)

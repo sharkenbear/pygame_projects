@@ -99,7 +99,6 @@ def display_side_grid(grid, grid_length, deepness, screen, steepness):
             draw_rect(screen, row*grid_length+deepness, col * grid_length + steepness, grid[row][col], grid_length, grid_length)
 
 def draw_rect(screen, x, y, colour, size_x, size_y):
-    # print("colour:", colour)
     square = pygame.Rect((x, y, size_x, size_y))
     pygame.draw.rect(screen, colour, square)
 
@@ -108,7 +107,6 @@ def draw_full_grid(screen, startposx, startposy, tile_size, full_colour_grid, ro
         for col in range(0, 8):
                 colrow = row2 * 8 + row
                 colcol = col2 * 8 + col
-                print (row, col)
                 draw_rect(screen, startposx + (row * (tile_size * 2) + tile_size), startposy + (col * (tile_size*2) + tile_size), full_colour_grid[colrow][colcol], tile_size * 2, tile_size * 2)
 
 def display_full_grid(selected, grid_length, deepness, screen, steepness, full_colour_grid):
