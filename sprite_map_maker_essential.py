@@ -1,20 +1,15 @@
-import os
 import pygame
 from icecream import ic
 import json
 
 pygame.init()
 
-def set_file (full_colour_grid):
+def set_file (full_colour_grid, file_created):
 
     # read JSON file and parse contents
-    if os.path.exists('hmmm.json'):
-        file_created = True
-    else:
-        file_created = False
-    print (file_created)
+        
     if file_created:
-        with open('hmm.json', 'r') as file:
+        with open('grid_file.json', 'r') as file:
             python_obj = json.load(file)
 
         file_name = python_obj['name']
@@ -94,7 +89,7 @@ def set_file (full_colour_grid):
         }
 
     # dumps the new contents to the file
-    with open('hmm.json', 'w') as file:
+    with open('grid_file.json', 'w') as file:
         json.dump(sprite, file, indent = 4)
 
 def display_side_grid(grid, grid_length, deepness, screen, steepness):
@@ -104,20 +99,16 @@ def display_side_grid(grid, grid_length, deepness, screen, steepness):
             draw_rect(screen, row*grid_length+deepness, col * grid_length + steepness, grid[row][col], grid_length, grid_length)
 
 def draw_rect(screen, x, y, colour, size_x, size_y):
+    # print("colour:", colour)
     square = pygame.Rect((x, y, size_x, size_y))
     pygame.draw.rect(screen, colour, square)
 
-def draw_full_grid(screen, startposx, startposy, tile_size, full_colour_grid, row2, col2, wowow = False):
-
+def draw_full_grid(screen, startposx, startposy, tile_size, full_colour_grid, row2, col2):
     for row in range(0, 8):
         for col in range(0, 8):
-            # print (full_colour_grid[0])
-            # print("")
-            if wowow:
-                draw_rect(screen, startposx + (row * (tile_size * 2) + tile_size), startposy + (col * (tile_size*2) + tile_size), full_colour_grid[row][col], tile_size * 2, tile_size * 2)
-            else:
                 colrow = row2 * 8 + row
                 colcol = col2 * 8 + col
+                print (row, col)
                 draw_rect(screen, startposx + (row * (tile_size * 2) + tile_size), startposy + (col * (tile_size*2) + tile_size), full_colour_grid[colrow][colcol], tile_size * 2, tile_size * 2)
 
 def display_full_grid(selected, grid_length, deepness, screen, steepness, full_colour_grid):
