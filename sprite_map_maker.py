@@ -237,68 +237,21 @@ def main():
             * full_grid_length
                 for _ in range(0, full_grid_length) 
                 ]
-        
-        if os.path.exists('grid_fil.json'):
+
+        if os.path.exists('grid_file.json'):
+            num = 0
             file_created = True
             with open('grid_file.json', 'r') as file:
                 python_obj = json.load(file)
-            content = python_obj['content_0'], python_obj['content_1'], python_obj['content_2'], python_obj['content_3'], python_obj['content_4'],
-            python_obj['content_5'], python_obj['content_6'], python_obj['content_7'], python_obj['content_8'], python_obj['content_9'], python_obj['content_10'],
-            python_obj['content_11'],
-            full_colour_grid[12] = python_obj['content_12'],
-            full_colour_grid[13] = python_obj['content_13'],
-            full_colour_grid[14] = python_obj['content_14'],
-            full_colour_grid[15] = python_obj['content_15'],
-            full_colour_grid[16] = python_obj['content_16'],
-            full_colour_grid[17] = python_obj['content_17'],
-            full_colour_grid[18] = python_obj['content_18'],
-            full_colour_grid[19] = python_obj['content_19'],
-            full_colour_grid[20] = python_obj['content_20'],
-            full_colour_grid[21] = python_obj['content_21'],
-            full_colour_grid[22] = python_obj['content_22'],
-            full_colour_grid[23] = python_obj['content_23'],
-            full_colour_grid[24] = python_obj['content_24'],
-            full_colour_grid[25] = python_obj['content_25'],
-            full_colour_grid[26] = python_obj['content_26'],
-            full_colour_grid[27] = python_obj['content_27'],
-            full_colour_grid[28] = python_obj['content_28'],
-            full_colour_grid[29] = python_obj['content_29'],
-            full_colour_grid[30] = python_obj['content_30'],
-            full_colour_grid[31] = python_obj['content_31'],
-            full_colour_grid[32] = python_obj['content_32'],
-            full_colour_grid[33] = python_obj['content_33'],
-            full_colour_grid[34] = python_obj['content_34'],
-            full_colour_grid[35] = python_obj['content_35'],
-            full_colour_grid[36] = python_obj['content_36'],
-            full_colour_grid[37] = python_obj['content_37'],
-            full_colour_grid[38] = python_obj['content_38'],
-            full_colour_grid[39] = python_obj['content_39'],
-            full_colour_grid[40] = python_obj['content_40'],
-            full_colour_grid[41] = python_obj['content_41'],
-            full_colour_grid[42] = python_obj['content_42'],
-            full_colour_grid[43] = python_obj['content_43'],
-            full_colour_grid[44] = python_obj['content_44'],
-            full_colour_grid[45] = python_obj['content_45'],
-            full_colour_grid[46] = python_obj['content_46'],
-            full_colour_grid[47] = python_obj['content_47'],
-            full_colour_grid[48] = python_obj['content_48'],
-            full_colour_grid[49] = python_obj['content_49'],
-            full_colour_grid[50] = python_obj['content_50'],
-            full_colour_grid[51] = python_obj['content_51'],
-            full_colour_grid[52] = python_obj['content_52'],
-            full_colour_grid[53] = python_obj['content_53'],
-            full_colour_grid[54] = python_obj['content_54'],
-            full_colour_grid[55] = python_obj['content_55'],
-            full_colour_grid[56] = python_obj['content_56'],
-            full_colour_grid[57] = python_obj['content_57'],
-            full_colour_grid[58] = python_obj['content_58'],
-            full_colour_grid[59] = python_obj['content_59'],
-            full_colour_grid[60] = python_obj['content_60'],
-            full_colour_grid[61] = python_obj['content_61'],
-            full_colour_grid[62] = python_obj['content_62'],
-            full_colour_grid[63] = python_obj['content_63']
+            for _ in full_colour_grid:
+                full_colour_grid[0] = list(python_obj['content_0'])
+
+                num = num + 1
         else:
             file_created = False
+
+        print (type(full_colour_grid[0]))
+        print (full_colour_grid[0])
 
         selected = (0, 0)
 
@@ -470,16 +423,19 @@ def main():
                             current_colour = GREY
                             set_colour_change = current_colour
 
-                        # changes the selected tool to whatever brush is clicked
+                        # changes the selected tool to whatever tool is pressed
                         # fill/bucket tool
                         elif (mouse_pos[0] >= 116 and mouse_pos[0] <= 180) and (mouse_pos[1] >= 478 and mouse_pos[1] <= 541):
                             tool_selected = FILL
-                        # brush tool
+                        # pen tool
                         elif (mouse_pos[0] >= 26 and mouse_pos[0] <= 89) and (mouse_pos[1] >= 478 and mouse_pos[1] <= 541):
                             tool_selected = PEN
                         # colour picker tool
                         elif (mouse_pos[0] >= 26 and mouse_pos[0] <= 89) and (mouse_pos[1] >= 567 and mouse_pos[1] <= 631):
                             tool_selected = COLOUR_PICKER
+                        # brush tool
+                        elif (mouse_pos[0] >= 116 and mouse_pos[0] <= 180) and (mouse_pos[1] >= 567 and mouse_pos[1] <= 631):
+                            tool_selected = BRUSH
 
             if event.type == pygame.MOUSEBUTTONUP:
                 slider_change2 = NO_COLOUR
