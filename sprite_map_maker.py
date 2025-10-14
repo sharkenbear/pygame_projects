@@ -3,7 +3,6 @@ import random
 from icecream import ic
 
 import sprite_map_maker_essential
-import json_editor
 
 pygame.init()
 
@@ -35,7 +34,7 @@ CYAN = (0, 255, 255)
 SIDE_GRID_LENGTH = 8
 
 def save_map(full_colour_grid):
-    json_editor.set_file(full_colour_grid)
+    sprite_map_maker_essential.set_file(full_colour_grid)
     print("saved to grid_file.json!")
 
 def draw_opacity_text(screen, x, y, text, colour, font_size, opacity = 255):
@@ -253,6 +252,8 @@ def main():
                 
                 if cmd and event.key == pygame.K_s:
                     save_map(full_colour_grid)
+                    opacity = 255
+                    t = 255
                     saved_text = True
                 
                 if cmd and event.key == pygame.K_BACKSPACE and trying_delete:
