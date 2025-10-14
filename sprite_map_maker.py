@@ -10,6 +10,9 @@ pygame.init()
 SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 700
 
+STARTING = 0
+REDOING = 1
+
 FILL = 0
 PEN = 1
 COLOUR_PICKER = 2
@@ -237,22 +240,9 @@ def main():
             * full_grid_length
                 for _ in range(0, full_grid_length) 
                 ]
-        resolved = False
-        while not resolved:
-            file_name = input("if you wish to load a file, please enter its name, such as 'grid_file.json'. otherwise enter 'new file'\n")
         
-            if os.path.exists(file_name):
-                resolved = True
-                file_created = True
-            elif file_name == "new file":
-                resolved = True
-                file_created = False
-            else:
-                print("error, please try again.")
-        if file_created:
-            with open(file_name, 'r') as file:
-                python_obj = json.load(file)
-                full_colour_grid = python_obj['contents']
+        loading = STARTING
+        resolved = False
 
         selected = (0, 0)
 
@@ -283,6 +273,28 @@ def main():
     running = True
     while running:
 
+        if loading != False:
+            while not resolved:
+                if loading == STARTING:
+                    file_name = input("if you wish to load a file, please enter its name, such as 'grid_file.json'. otherwise enter 'new file'\n")
+                else:
+                    file_name = input("if you wish to load a file, please enter its name, such as 'grid_file.json'. if you wish to make a new file, enter 'new file'. to exit, type 'exit'.\n")
+                if os.path.exists(file_name):
+                    resolved = True
+                    file_created = True
+                elif file_name == "new file":
+                    resolved = True
+                    file_created = False
+                elif file_name == "exit":
+                    resolved = True
+                else:
+                    print("error, please try again.")
+            if file_created:
+                with open(file_name, 'r') as file:
+                    python_obj = json.load(file)
+                    full_colour_grid = python_obj['contents']
+            loading = False
+
         mouse_pos = None
         set_colour_change = None
 
@@ -304,6 +316,9 @@ def main():
                     t = 255
                     saved_text = True
                 
+                if cmd and event.key == pygame.K_l:
+                    loading = REDOING
+
                 if cmd and event.key == pygame.K_BACKSPACE and trying_delete:
                     full_colour_grid = [ [(0, 0, 0)] * full_grid_length for _ in range(0, full_grid_length)]
                 
@@ -468,6 +483,7 @@ def main():
                 out_of_range = slider_change2
 
         screen.fill((45, 52, 92))
+        pygame.display.set_caption('Sprite Map Maker')
 
         if mouse_pos == None:
             mouse_pos = pygame.mouse.get_pos()
