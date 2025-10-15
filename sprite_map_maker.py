@@ -40,8 +40,8 @@ CYAN = (0, 255, 255)
 
 SIDE_GRID_LENGTH = 8
 
-def save_map(full_colour_grid, file_created):
-    file_name = sprite_map_maker_essential.set_file(full_colour_grid, file_created)
+def save_map(full_colour_grid, file_created, file_name):
+    file_name = sprite_map_maker_essential.set_file(full_colour_grid, file_created, file_name)
     print("saved to ", sprite_map_maker_essential.remove_imperfections(file_name), "!", sep="")
 
 def draw_opacity_text(screen, x, y, text, colour, font_size, opacity = 255):
@@ -235,6 +235,7 @@ def main():
         selected = (0, 0)
 
         full_grid_length = 64
+        mini_full_length = full_grid_length ** 0.5
         # full_colour_grid = [[[[0, 0, 0]] * 8 for _ in range(0, 8)] * full_grid_length for _ in range(0, full_grid_length)]
         full_colour_grid = [ 
             [ ( 0, 0, 0 ) ]
@@ -242,6 +243,10 @@ def main():
                 for _ in range(0, full_grid_length) 
                 ]
         
+        # width of the tiles in the side grid
+
+        colour_side_grid = [[(0, 0, 0)] * SIDE_GRID_LENGTH for _ in range(0, SIDE_GRID_LENGTH)]
+
         loading = STARTING
         resolved = False
 
@@ -252,10 +257,6 @@ def main():
         slider_change2 = NO_COLOUR
         has_happened = False
         set_colour_change = None
-
-        # width of the tiles in the side grid
-
-        colour_side_grid = [[(0, 0, 0)] * SIDE_GRID_LENGTH for _ in range(0, SIDE_GRID_LENGTH)]
 
         # defines the brush variables & pngs
         tool_selected = BRUSH
@@ -275,26 +276,29 @@ def main():
     while running:
 
         if loading != STOPPED:
-            print("what")
+            resolved = False
             while not resolved:
                 if loading == STARTING:
-                    file_name = input("if you wish to load a file, please enter its name, such as 'grid_file.json'. otherwise enter 'new file'\n")
+                    file_name = input("if you wish to load a file enter its name, such as 'file.json'. otherwise enter 'new file'\n")
                 else:
-                    file_name = input("if you wish to load a file, please enter its name, such as 'grid_file.json'. if you wish to make a new file, enter 'new file'. to exit, type 'exit'.\n")
+                    file_name = input("if you wish to load a file enter its name, such as 'file.json'. if you wish to make a new file, enter 'new file'. to exit, type 'exit'.\n")
                 if os.path.exists(file_name):
                     resolved = True
                     file_created = True
                 elif file_name == "new file":
                     resolved = True
                     file_created = False
-                elif file_name == "exit":
+                elif file_name == "exit" and loading != STARTING:
                     resolved = True
                 else:
-                    print("error, please try again.")
+                    print("error, please try again")
             if file_created:
                 with open(file_name, 'r') as file:
                     python_obj = json.load(file)
                     full_colour_grid = python_obj['contents']
+                for num in range(0, 8):
+                    for num2 in range(0, 8):
+                        colour_side_grid[num][num2] = full_colour_grid[num][num2]
             loading = STOPPED
 
         mouse_pos = None
@@ -313,7 +317,7 @@ def main():
                     cmd = True
                 
                 if cmd and event.key == pygame.K_s:
-                    save_map(full_colour_grid, file_created)
+                    save_map(full_colour_grid, file_created, file_name)
                     opacity = 255
                     t = 255
                     saved_text = True
@@ -352,26 +356,14 @@ def main():
                     
                     if out_of_range == NO_COLOUR:
 
-                        # changes the selected sprite
-                        if (mouse_pos[0] >= 221 and mouse_pos[0] <= 860) and (mouse_pos[1] >= 23 and mouse_pos[1] <= 660):
-                            collider_row = int((mouse_pos[0] - 221) / 80)
-                            collider_col = int((mouse_pos[1] - 23) / 80)
-
-                            selected = collider_row, collider_col
-                            for row in range(0, 8):
-                                for col in range(0, 8):
-                                    grid_row = collider_row * 8 + row
-                                    grid_col = collider_col * 8 + col
-                                    colour_side_grid[row][col] = full_colour_grid[grid_row][grid_col]
-
                         # changes the side grid using whatever tool is selected
-                        elif (mouse_pos[0] >= 25 and mouse_pos[0] <= 184) and (mouse_pos[1] >= 28 and mouse_pos[1] <= 186):
+                        if (mouse_pos[0] >= 25 and mouse_pos[0] <= 184) and (mouse_pos[1] >= 28 and mouse_pos[1] <= 186):
                             collider_row = int((mouse_pos[0] - 25) / 20)
                             collider_col = int((mouse_pos[1] - 28) / 20)
 
                             if tool_selected == PEN or tool_selected == BRUSH:
-                                selec_row = collider_row + ((selected[0]) * 8)
-                                selec_col = collider_col + ((selected[1]) * 8)
+                                selec_row = collider_row + ((selected[0]) * full_grid_length / mini_full_length)
+                                selec_col = collider_col + ((selected[1]) * full_grid_length / mini_full_length)
 
                                 colour_side_grid[collider_row][collider_col] = current_colour
                                 full_colour_grid[selec_row][selec_col] = current_colour
@@ -384,76 +376,96 @@ def main():
                                 slider_red_pos = get_slider_colour(current_colour[0], (0, 255, 25, 180), True)
                                 slider_green_pos = get_slider_colour(current_colour[1], (0, 255, 25, 180), True)
                                 slider_blue_pos = get_slider_colour(current_colour[2], (0, 255, 25, 180), True)
+                                tool_selected = BRUSH
 
                             elif tool_selected == FILL:
-                                print("fill tool is broken sorry")
+                                colour_side_grid = [[current_colour] * SIDE_GRID_LENGTH for _ in range(0, SIDE_GRID_LENGTH)]
+                                selec_row = selected[0] * full_grid_length / mini_full_length
+                                selec_col = selected[1] * full_grid_length / mini_full_length
+                                for num in range(0, full_grid_length / mini_full_length):
+                                    for num2 in range(0, full_grid_length / mini_full_length):
+                                        full_colour_grid[selec_row + num][selec_col + num] = current_colour
+                        
+                        if not drawing:
 
-                        # changes the colour to one of the set colours if they are pressed
-                        # red
-                        elif (mouse_pos[0] >= 890 and mouse_pos[0] <= 970) and (mouse_pos[1] >= 275 and mouse_pos[1] <= 355):
-                            current_colour = RED
-                            set_colour_change = current_colour
-                        # green
-                        elif (mouse_pos[0] >= 990 and mouse_pos[0] <= 1070) and (mouse_pos[1] >= 275 and mouse_pos[1] <= 355):
-                            current_colour = GREEN
-                            set_colour_change = current_colour
-                        # blue
-                        elif (mouse_pos[0] >= 1090 and mouse_pos[0] <= 1170) and (mouse_pos[1] >= 275 and mouse_pos[1] <= 355):
-                            current_colour = BLUE
-                            set_colour_change = current_colour
+                            # changes the current sprite selected
+                            if (mouse_pos[0] >= 221 and mouse_pos[0] <= 860) and (mouse_pos[1] >= 23 and mouse_pos[1] <= 660):
+                                collider_row = int((mouse_pos[0] - 221) / 80)
+                                collider_col = int((mouse_pos[1] - 23) / 80)
 
-                        # terqoise
-                        elif (mouse_pos[0] >= 890 and mouse_pos[0] <= 970) and (mouse_pos[1] >= 475 and mouse_pos[1] <= 555):
-                            current_colour = TERQOISE
-                            set_colour_change = current_colour
-                        # orange
-                        elif (mouse_pos[0] >= 990 and mouse_pos[0] <= 1070) and (mouse_pos[1] >= 475 and mouse_pos[1] <= 555):
-                            current_colour = ORANGE
-                            set_colour_change = current_colour
-                        # pink
-                        elif (mouse_pos[0] >= 1090 and mouse_pos[0] <= 1170) and (mouse_pos[1] >= 475 and mouse_pos[1] <= 555):
-                            current_colour = PINK
-                            set_colour_change = current_colour
+                                selected = collider_row, collider_col
+                                for row in range(0, 8):
+                                    for col in range(0, 8):
+                                        grid_row = collider_row * 8 + row
+                                        grid_col = collider_col * 8 + col
+                                        colour_side_grid[row][col] = full_colour_grid[grid_row][grid_col]
 
-                        # yellow
-                        elif (mouse_pos[0] >= 890 and mouse_pos[0] <= 970) and (mouse_pos[1] >= 375 and mouse_pos[1] <= 455):
-                            current_colour = YELLOW
-                            set_colour_change = current_colour
-                        # purple
-                        elif (mouse_pos[0] >= 990 and mouse_pos[0] <= 1070) and (mouse_pos[1] >= 375 and mouse_pos[1] <= 455):
-                            current_colour = PURPLE
-                            set_colour_change = current_colour
-                        # cyan
-                        elif (mouse_pos[0] >= 1090 and mouse_pos[0] <= 1170) and (mouse_pos[1] >= 375 and mouse_pos[1] <= 455):
-                            current_colour = CYAN
-                            set_colour_change = current_colour
+                            # changes the colour to one of the set colours if they are pressed
+                            # red
+                            elif (mouse_pos[0] >= 890 and mouse_pos[0] <= 970) and (mouse_pos[1] >= 275 and mouse_pos[1] <= 355):
+                                current_colour = RED
+                                set_colour_change = current_colour
+                            # green
+                            elif (mouse_pos[0] >= 990 and mouse_pos[0] <= 1070) and (mouse_pos[1] >= 275 and mouse_pos[1] <= 355):
+                                current_colour = GREEN
+                                set_colour_change = current_colour
+                            # blue
+                            elif (mouse_pos[0] >= 1090 and mouse_pos[0] <= 1170) and (mouse_pos[1] >= 275 and mouse_pos[1] <= 355):
+                                current_colour = BLUE
+                                set_colour_change = current_colour
 
-                        # black
-                        elif (mouse_pos[0] >= 890 and mouse_pos[0] <= 970) and (mouse_pos[1] >= 575 and mouse_pos[1] <= 655):
-                            current_colour = BLACK
-                            set_colour_change = current_colour
-                        # white
-                        elif (mouse_pos[0] >= 990 and mouse_pos[0] <= 1070) and (mouse_pos[1] >= 575 and mouse_pos[1] <= 655):
-                            current_colour = WHITE
-                            set_colour_change = current_colour
-                        # grey
-                        elif (mouse_pos[0] >= 1090 and mouse_pos[0] <= 1170) and (mouse_pos[1] >= 575 and mouse_pos[1] <= 655):
-                            current_colour = GREY
-                            set_colour_change = current_colour
+                            # terqoise
+                            elif (mouse_pos[0] >= 890 and mouse_pos[0] <= 970) and (mouse_pos[1] >= 475 and mouse_pos[1] <= 555):
+                                current_colour = TERQOISE
+                                set_colour_change = current_colour
+                            # orange
+                            elif (mouse_pos[0] >= 990 and mouse_pos[0] <= 1070) and (mouse_pos[1] >= 475 and mouse_pos[1] <= 555):
+                                current_colour = ORANGE
+                                set_colour_change = current_colour
+                            # pink
+                            elif (mouse_pos[0] >= 1090 and mouse_pos[0] <= 1170) and (mouse_pos[1] >= 475 and mouse_pos[1] <= 555):
+                                current_colour = PINK
+                                set_colour_change = current_colour
 
-                        # changes the selected tool to whatever tool is pressed
-                        # fill/bucket tool
-                        elif (mouse_pos[0] >= 116 and mouse_pos[0] <= 180) and (mouse_pos[1] >= 478 and mouse_pos[1] <= 541):
-                            tool_selected = FILL
-                        # pen tool
-                        elif (mouse_pos[0] >= 26 and mouse_pos[0] <= 89) and (mouse_pos[1] >= 478 and mouse_pos[1] <= 541):
-                            tool_selected = PEN
-                        # colour picker tool
-                        elif (mouse_pos[0] >= 26 and mouse_pos[0] <= 89) and (mouse_pos[1] >= 567 and mouse_pos[1] <= 631):
-                            tool_selected = COLOUR_PICKER
-                        # brush tool
-                        elif (mouse_pos[0] >= 116 and mouse_pos[0] <= 180) and (mouse_pos[1] >= 567 and mouse_pos[1] <= 631):
-                            tool_selected = BRUSH
+                            # yellow
+                            elif (mouse_pos[0] >= 890 and mouse_pos[0] <= 970) and (mouse_pos[1] >= 375 and mouse_pos[1] <= 455):
+                                current_colour = YELLOW
+                                set_colour_change = current_colour
+                            # purple
+                            elif (mouse_pos[0] >= 990 and mouse_pos[0] <= 1070) and (mouse_pos[1] >= 375 and mouse_pos[1] <= 455):
+                                current_colour = PURPLE
+                                set_colour_change = current_colour
+                            # cyan
+                            elif (mouse_pos[0] >= 1090 and mouse_pos[0] <= 1170) and (mouse_pos[1] >= 375 and mouse_pos[1] <= 455):
+                                current_colour = CYAN
+                                set_colour_change = current_colour
+
+                            # black
+                            elif (mouse_pos[0] >= 890 and mouse_pos[0] <= 970) and (mouse_pos[1] >= 575 and mouse_pos[1] <= 655):
+                                current_colour = BLACK
+                                set_colour_change = current_colour
+                            # white
+                            elif (mouse_pos[0] >= 990 and mouse_pos[0] <= 1070) and (mouse_pos[1] >= 575 and mouse_pos[1] <= 655):
+                                current_colour = WHITE
+                                set_colour_change = current_colour
+                            # grey
+                            elif (mouse_pos[0] >= 1090 and mouse_pos[0] <= 1170) and (mouse_pos[1] >= 575 and mouse_pos[1] <= 655):
+                                current_colour = GREY
+                                set_colour_change = current_colour
+
+                            # changes the selected tool to whatever tool is pressed
+                            # fill/bucket tool
+                            elif (mouse_pos[0] >= 116 and mouse_pos[0] <= 180) and (mouse_pos[1] >= 478 and mouse_pos[1] <= 541):
+                                tool_selected = FILL
+                            # pen tool
+                            elif (mouse_pos[0] >= 26 and mouse_pos[0] <= 89) and (mouse_pos[1] >= 478 and mouse_pos[1] <= 541):
+                                tool_selected = PEN
+                            # colour picker tool
+                            elif (mouse_pos[0] >= 26 and mouse_pos[0] <= 89) and (mouse_pos[1] >= 567 and mouse_pos[1] <= 631):
+                                tool_selected = COLOUR_PICKER
+                            # brush tool
+                            elif (mouse_pos[0] >= 116 and mouse_pos[0] <= 180) and (mouse_pos[1] >= 567 and mouse_pos[1] <= 631):
+                                tool_selected = BRUSH
 
             if event.type == pygame.MOUSEBUTTONUP:
                 slider_change2 = NO_COLOUR

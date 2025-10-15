@@ -7,12 +7,12 @@ pygame.init()
 def remove_imperfections(word):
     return str(word).replace(" ", "").replace("'", "").replace(",", "").replace("(", "").replace(")", "").replace(":", "")
 
-def set_file (full_colour_grid, file_created):
+def set_file (full_colour_grid, file_created, file_name):
 
     # read JSON file and parse contents
         
     if file_created:
-        with open('grid_file.json', 'r') as file:
+        with open(file_name, 'r') as file:
             python_obj = json.load(file)
 
         file_name = python_obj['name']
