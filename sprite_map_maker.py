@@ -12,6 +12,7 @@ SCREEN_HEIGHT = 700
 
 STARTING = 0
 REDOING = 1
+STOPPED = 2
 
 FILL = 0
 PEN = 1
@@ -273,7 +274,8 @@ def main():
     running = True
     while running:
 
-        if loading != False:
+        if loading != STOPPED:
+            print("what")
             while not resolved:
                 if loading == STARTING:
                     file_name = input("if you wish to load a file, please enter its name, such as 'grid_file.json'. otherwise enter 'new file'\n")
@@ -293,7 +295,7 @@ def main():
                 with open(file_name, 'r') as file:
                     python_obj = json.load(file)
                     full_colour_grid = python_obj['contents']
-            loading = False
+            loading = STOPPED
 
         mouse_pos = None
         set_colour_change = None
@@ -380,8 +382,8 @@ def main():
                             elif tool_selected == COLOUR_PICKER:
                                 current_colour = colour_side_grid[collider_row][collider_col]
                                 slider_red_pos = get_slider_colour(current_colour[0], (0, 255, 25, 180), True)
-                                slider_blue_pos = get_slider_colour(current_colour[1], (0, 255, 25, 180), True)
-                                slider_green_pos = get_slider_colour(current_colour[2], (0, 255, 25, 180), True)
+                                slider_green_pos = get_slider_colour(current_colour[1], (0, 255, 25, 180), True)
+                                slider_blue_pos = get_slider_colour(current_colour[2], (0, 255, 25, 180), True)
 
                             elif tool_selected == FILL:
                                 print("fill tool is broken sorry")
@@ -502,10 +504,10 @@ def main():
             draw_opacity_text(screen, 900, 20, "saved!", (0, 0, 0), 40, opacity)
 
         if trying_delete and not saved_text:
-            draw_centered_text(screen, 90, 560, "press command +", (0, 0, 0), 20)
-            draw_centered_text(screen, 110, 580, "delete again to confirm", (0, 0, 0), 20)
-            draw_centered_text(screen, 90, 600, "delete or let go of", (0, 0, 0), 20)
-            draw_centered_text(screen, 95, 620, "command to cancel", (0, 0, 0), 20)
+            draw_centered_text(screen, 1000, 20, "press command +", (0, 0, 0), 20)
+            draw_centered_text(screen, 1000, 40, "delete again to confirm", (0, 0, 0), 20)
+            draw_centered_text(screen, 1000, 60, "delete or let go of", (0, 0, 0), 20)
+            draw_centered_text(screen, 1000, 80, "command to cancel", (0, 0, 0), 20)
 
         # draws the currently selected colour in a box below the side grid
         draw_rect(screen, 75, 370, (244, 234, 87), 60, 60)
