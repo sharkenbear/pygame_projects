@@ -3,12 +3,17 @@ import json
 import pygame
 from icecream import ic
 
-import sprite_map_maker_essential
+import sprite_map_maker_essential2
 
 pygame.init()
 
 SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 700
+
+SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
+FULL_GRID_LENGTH = 64
+SPRITE_LENGTH = int(FULL_GRID_LENGTH ** 0.5)
 
 STARTING = 0
 REDOING = 1
@@ -18,6 +23,7 @@ FILL = 0
 PEN = 1
 COLOUR_PICKER = 2
 BRUSH = 3
+AUTO_FILL = 4
 
 NO_COLOUR = 0
 RED_COLOUR = 1
@@ -40,29 +46,69 @@ CYAN = (0, 255, 255)
 
 SIDE_GRID_LENGTH = 8
 
-def save_map(full_colour_grid, file_created, file_name):
-    file_name = sprite_map_maker_essential.set_file(full_colour_grid, file_created, file_name)
-    print("saved to ", sprite_map_maker_essential.remove_imperfections(file_name), "!", sep="")
+def access_sprite(grid, file_name, selected):
+    if selected[0] < SPRITE_LENGTH and selected[1] < SPRITE_LENGTH:
+        with open(file_name, 'r') as file:
+            python_obj = json.load(file)
+            for num in range(0, SPRITE_LENGTH):
+                for num2 in range(0, SPRITE_LENGTH):
+                    file_contents = python_obj['contents']
+                    grid[num][num2] = file_contents[num + selected[0] * SPRITE_LENGTH][num2 + selected[1] * SPRITE_LENGTH]
+    else:
+        print("there has been an error. perhaps sprite map is too small")
+    return grid
 
-def draw_opacity_text(screen, x, y, text, colour, font_size, opacity = 255):
+def draw_sprite(access_file_name, selected, x, y, pixel_length, background_colour = False):
+    grid = [[(0, 0, 0)] * SPRITE_LENGTH for _ in range(0, SPRITE_LENGTH)]
+    grid = access_sprite(grid, access_file_name, selected)
+    for x2 in range(0, SPRITE_LENGTH):
+        for y2 in range(0, SPRITE_LENGTH):
+            if background_colour == False:
+                draw_rect(x + x2*pixel_length, y + y2*pixel_length, grid[x2][y2], pixel_length, pixel_length)
+            else:
+                background_tuple0, background_tuple1, background_tuple2, = background_colour
+                checked = 0
+
+                for num0 in range(0, 5):
+                    for num1 in range(0, 5):
+                        for num2 in range(0, 5):
+
+                            if background_tuple0 < 2:
+                                background_tuple0 = 2
+                            if background_tuple1 < 2:
+                                background_tuple1 = 2
+                            if background_tuple2 < 2:
+                                background_tuple2 = 2
+
+                            if grid[x2][y2] != [background_tuple0 - 2 + num0, background_tuple1 - 2 + num1, background_tuple2 - 2 + num2]:
+                                checked = checked + 1
+
+                if checked == 125:
+                    draw_rect(x + x2*pixel_length, y + y2*pixel_length, grid[x2][y2], pixel_length, pixel_length)
+
+def save_map(full_colour_grid, file_created, file_name):
+    file_name = sprite_map_maker_essential2.set_file(full_colour_grid, file_created, file_name)
+    print("saved to ", sprite_map_maker_essential2.remove_imperfections(file_name), "!", sep="")
+
+def draw_opacity_text(x, y, text, colour, font_size, opacity = 255):
     font = pygame.font.SysFont('arial', font_size)
     text = font.render(str(text), True, (255,0,0))
     surface = pygame.Surface(text.get_size(), pygame.SRCALPHA)
     surface.blit(text, (0,0))
     surface.fill((colour[0], colour[1], colour[2], opacity), None, pygame.BLEND_RGBA_MULT)
-    screen.blit(surface, (x, y))
+    SCREEN.blit(surface, (x, y))
 
-def draw_centered_text(screen, x, y, text, colour, font_size):
+def draw_centered_text(x, y, text, colour, font_size):
     font = pygame.font.SysFont('arial', font_size)
     text = font.render(str(text), True, colour)
     text_rect = text.get_rect(center=(x, y))
-    screen.blit(text, text_rect)
+    SCREEN.blit(text, text_rect)
 
-def draw_colour_bar(slider_pos_red, slider_pos_green, slider_pos_blue, current_colour, mouse_pos, slider_change, screen, colour_change):
+def draw_colour_bar(slider_pos_red, slider_pos_green, slider_pos_blue, current_colour, mouse_pos, slider_change, colour_change):
     for row in range(25, 185):
-        draw_rect(screen, row, 210, (row, 0, 0), 1, 30)
-        draw_rect(screen, row, 270, (0, row, 0), 1, 30)
-        draw_rect(screen, row, 330, (0, 0, row), 1, 30)
+        draw_rect(row, 210, (row, 0, 0), 1, 30)
+        draw_rect(row, 270, (0, row, 0), 1, 30)
+        draw_rect(row, 330, (0, 0, row), 1, 30)
 
     red_in = ()
     green_in = ()
@@ -92,9 +138,9 @@ def draw_colour_bar(slider_pos_red, slider_pos_green, slider_pos_blue, current_c
             slider_pos_blue = mouse_pos[0]
             current_colour = (current_colour[0], current_colour[1], get_slider_colour(slider_pos_blue, (25, 180, 0, 255)))
     
-    draw_rect(screen, slider_pos_red - 3, 210 - 7.5, (255, 255, 255), 10, 45)
-    draw_rect(screen, slider_pos_green - 3, 270 - 7.5, (255, 255, 255), 10, 45)
-    draw_rect(screen, slider_pos_blue - 3, 330 - 7.5, (255, 255, 255), 10, 45)
+    draw_rect(slider_pos_red - 3, 210 - 7.5, (255, 255, 255), 10, 45)
+    draw_rect(slider_pos_green - 3, 270 - 7.5, (255, 255, 255), 10, 45)
+    draw_rect(slider_pos_blue - 3, 330 - 7.5, (255, 255, 255), 10, 45)
 
     red_return = slider_pos_red
     green_return = slider_pos_green
@@ -109,11 +155,17 @@ def draw_colour_bar(slider_pos_red, slider_pos_green, slider_pos_blue, current_c
 
     return red_return, green_return, blue_return, current_colour
 
-def draw_brushes_and_set_colours(screen, screen_width, pen_png, bucket_png, tool_selected):
+def draw_brushes_and_set_colours(access_file_name, tool_selected):
 
     if tool_selected == PEN:
         pen_colour = (136, 10, 232)
         bucket_colour = (0, 0, 0)
+        colour_picker_colour = (0, 0, 0)
+        brush_colour = (0, 0, 0)
+
+    elif tool_selected == AUTO_FILL:
+        pen_colour = (0, 0, 0)
+        bucket_colour = (0, 192, 192)
         colour_picker_colour = (0, 0, 0)
         brush_colour = (0, 0, 0)
 
@@ -136,73 +188,68 @@ def draw_brushes_and_set_colours(screen, screen_width, pen_png, bucket_png, tool
         brush_colour = (136, 10, 232)
 
     # draws the boxes around the tools
-    draw_rect(screen, 25, 475, (244, 234, 87), 65, 65)
-    draw_rect(screen, 30, 480, pen_colour, 55, 55)
+    draw_rect(25, 475, (244, 234, 87), 65, 65)
+    draw_rect(30, 480, pen_colour, 55, 55)
 
-    draw_rect(screen, 115, 475, (244, 234, 87), 65, 65)
-    draw_rect(screen, 120, 480, bucket_colour, 55, 55)
+    draw_rect(115, 475, (244, 234, 87), 65, 65)
+    draw_rect(120, 480, bucket_colour, 55, 55)
 
-    draw_rect(screen, 25, 565, (244, 234, 87), 65, 65)
-    draw_rect(screen, 30, 570, colour_picker_colour, 55, 55)
+    draw_rect(25, 565, (244, 234, 87), 65, 65)
+    draw_rect(30, 570, colour_picker_colour, 55, 55)
 
-    draw_rect(screen, 115, 565, (244, 234, 87), 65, 65)
-    draw_rect(screen, 120, 570, brush_colour, 55, 55)
+    draw_rect(115, 565, (244, 234, 87), 65, 65)
+    draw_rect(120, 570, brush_colour, 55, 55)
 
-    # # draws the tools
-    # screen.blit(pen_png, (screen_width / 2 - 225, 0))
-    # screen.blit(bucket_png, (screen_width / 2 - 225, 0))
-    # screen.blit(colour_picker_png, (screen_width / 2 - 225, 0))
-    # screen.blit(brush_png, (screen_width / 2 - 225, 0))
-    draw_centered_text(screen, 57, 505, "pen", (255, 255, 255), 20)
-    draw_centered_text(screen, 147, 490, "broken", (255, 255, 255), 20)
-    draw_centered_text(screen, 147, 510, "fill", (255, 255, 255), 20)
-    draw_centered_text(screen, 57, 585, "colour", (255, 255, 255), 20)
-    draw_centered_text(screen, 57, 605, "picker", (255, 255, 255), 20)
-    draw_centered_text(screen, 147, 595, "brush", (255, 255, 255), 20)
+    # draws the tool sprites
+
+    draw_sprite(access_file_name, (0, 0), 107, 478, 8, (45, 52, 92))
+    draw_sprite(access_file_name, (0, 0), 17, 568, 8, (45, 52, 92))
+    draw_sprite(access_file_name, (0, 0), 17, 478, 8, (45, 52, 92))
+    draw_sprite(access_file_name, (0, 0), 107, 568, 8, (45, 52, 92))
 
 
     # draws the boxes of set colours
     for row in range(1, 4):
-        for column in range(1, 5, 1):
-            draw_rect(screen, row * 100 + 790, column * 100 + 175, (174, 174, 174), 80, 80)
+        for column in range(1, 5):
+            draw_rect(row * 100 + 790, column * 100 + 175, (174, 174, 174), 80, 80)
     
     # terqoise: 25x 580y to 60x 615y
-    draw_rect(screen, 895, 480, (0, 170, 170), 70, 70)
+    draw_rect(895, 480, (0, 170, 170), 70, 70)
     # orange: 85x 580y to 110x 615y
-    draw_rect(screen, 995, 480, (255, 135, 0), 70, 70)
+    draw_rect(995, 480, (255, 135, 0), 70, 70)
     # pink: 145x 580y to 180x 615y
-    draw_rect(screen, 1095, 480, (255, 164, 255), 70, 70)
+    draw_rect(1095, 480, (255, 164, 255), 70, 70)
     
     # red: 25x 580y to 60x 615y
-    draw_rect(screen, 895, 280, (255, 0, 0), 70, 70)
+    draw_rect(895, 280, (255, 0, 0), 70, 70)
     # green: 85x 580y to 110x 615y
-    draw_rect(screen, 995, 280, (0, 255, 0), 70, 70)
+    draw_rect(995, 280, (0, 255, 0), 70, 70)
     # blue: 145x 580y to 180x 615y
-    draw_rect(screen, 1095, 280, (0, 0, 255), 70, 70)
+    draw_rect(1095, 280, (0, 0, 255), 70, 70)
 
     # yellow: 25x 640y to 60x 675y
-    draw_rect(screen, 895, 380, (255, 255, 0), 70, 70)
+    draw_rect(895, 380, (255, 255, 0), 70, 70)
     # purple: 85x 640y to 110x 675y
-    draw_rect(screen, 995, 380, (220, 0, 220), 70, 70)
+    draw_rect(995, 380, (220, 0, 220), 70, 70)
     # cyan: 145x 640y to 180x 675y
-    draw_rect(screen, 1095, 380, (0, 255, 255), 70, 70)
+    draw_rect(1095, 380, (0, 255, 255), 70, 70)
 
     # black: 25x 640y to 60x 675y
-    draw_rect(screen, 895, 580, (0, 0, 0), 70, 70)
+    draw_rect(895, 580, (0, 0, 0), 70, 70)
     # white: 85x 640y to 110x 675y
-    draw_rect(screen, 995, 580, (255, 255, 255), 70, 70)
+    draw_rect(995, 580, (255, 255, 255), 70, 70)
     # grey: 145x 640y to 180x 675y
-    draw_rect(screen, 1095, 580, (128, 128, 128), 70, 70)
+    draw_rect(1095, 580, (128, 128, 128), 70, 70)
 
-def draw_line(screen, startx, starty, endx, endy, colour = (0, 0, 0), width = 1):
-    pygame.draw.line(screen, colour, (startx, starty), (endx, endy), width)
+def draw_line(startx, starty, endx, endy, colour = (0, 0, 0), width = 1):
+    pygame.draw.line(SCREEN, colour, (startx, starty), (endx, endy), width)
 
-def draw_polygon(screen, colour, square_brackets_points):
-    pygame.draw.polygon(screen, colour, square_brackets_points)
+def draw_polygon(colour, square_brackets_points):
+    pygame.draw.polygon(SCREEN, colour, square_brackets_points)
 
-def draw_rect(screen, x, y, colour, size_x, size_y):
+def draw_rect(x, y, colour, size_x, size_y):
     square = pygame.Rect((x, y, size_x, size_y))
-    pygame.draw.rect(screen, colour, square)
+    pygame.draw.rect(SCREEN, colour, square)
 
 def get_slider_colour(original_num, in_tuple, anything = True):
     in_min, in_max, out_min, out_max = in_tuple
@@ -211,16 +258,15 @@ def get_slider_colour(original_num, in_tuple, anything = True):
     return original_num
 
 # displays coloured text on the screen
-def type_msg(screen, font, x, y, text, colour):
+def type_msg(font, x, y, text, colour):
     text = font.render(str(text), True, colour)
     text_rect = text.get_rect(center=(x, y))
-    screen.blit(text, text_rect)
+    SCREEN.blit(text, text_rect)
 
 def main():
 
     # foldable list of general variables
     if True:
-        screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
         out_of_range = NO_COLOUR
 
@@ -234,23 +280,21 @@ def main():
         # defines the grids + rect grids
         selected = (0, 0)
 
-        full_grid_length = 64
-        mini_full_length = full_grid_length ** 0.5
         # full_colour_grid = [[[[0, 0, 0]] * 8 for _ in range(0, 8)] * full_grid_length for _ in range(0, full_grid_length)]
         full_colour_grid = [ 
             [ ( 0, 0, 0 ) ]
-            * full_grid_length
-                for _ in range(0, full_grid_length) 
+            * FULL_GRID_LENGTH
+                for _ in range(0, FULL_GRID_LENGTH) 
                 ]
         
         # width of the tiles in the side grid
 
         colour_side_grid = [[(0, 0, 0)] * SIDE_GRID_LENGTH for _ in range(0, SIDE_GRID_LENGTH)]
 
+        access_file_name = 'symbol_map.json'
+
         loading = STARTING
         resolved = False
-
-        selected = (0, 0)
 
         # which colour is currently selected to be changed and which colour it has been changed to
         slider_change = NO_COLOUR
@@ -326,7 +370,7 @@ def main():
                     loading = REDOING
 
                 if cmd and event.key == pygame.K_BACKSPACE and trying_delete:
-                    full_colour_grid = [ [(0, 0, 0)] * full_grid_length for _ in range(0, full_grid_length)]
+                    full_colour_grid = [ [(0, 0, 0)] * FULL_GRID_LENGTH for _ in range(0, FULL_GRID_LENGTH)]
                 
                 if cmd and event.key == pygame.K_BACKSPACE:
                     trying_delete = True
@@ -362,8 +406,8 @@ def main():
                             collider_col = int((mouse_pos[1] - 28) / 20)
 
                             if tool_selected == PEN or tool_selected == BRUSH:
-                                selec_row = collider_row + ((selected[0]) * full_grid_length / mini_full_length)
-                                selec_col = collider_col + ((selected[1]) * full_grid_length / mini_full_length)
+                                selec_row = int(collider_row + (selected[0]) * SPRITE_LENGTH)
+                                selec_col = int(collider_col + (selected[1]) * SPRITE_LENGTH)
 
                                 colour_side_grid[collider_row][collider_col] = current_colour
                                 full_colour_grid[selec_row][selec_col] = current_colour
@@ -380,11 +424,11 @@ def main():
 
                             elif tool_selected == FILL:
                                 colour_side_grid = [[current_colour] * SIDE_GRID_LENGTH for _ in range(0, SIDE_GRID_LENGTH)]
-                                selec_row = selected[0] * full_grid_length / mini_full_length
-                                selec_col = selected[1] * full_grid_length / mini_full_length
-                                for num in range(0, full_grid_length / mini_full_length):
-                                    for num2 in range(0, full_grid_length / mini_full_length):
-                                        full_colour_grid[selec_row + num][selec_col + num] = current_colour
+                                selec_row = selected[0] * SPRITE_LENGTH
+                                selec_col = selected[1] * SPRITE_LENGTH
+                                for num in range(0, SPRITE_LENGTH):
+                                    for num2 in range(0, SPRITE_LENGTH):
+                                        full_colour_grid[selec_row + num][selec_col + num2] = current_colour
                         
                         if not drawing:
 
@@ -398,6 +442,8 @@ def main():
                                     for col in range(0, 8):
                                         grid_row = collider_row * 8 + row
                                         grid_col = collider_col * 8 + col
+                                        if tool_selected == AUTO_FILL:
+                                            full_colour_grid[grid_row][grid_col] = current_colour
                                         colour_side_grid[row][col] = full_colour_grid[grid_row][grid_col]
 
                             # changes the colour to one of the set colours if they are pressed
@@ -456,7 +502,10 @@ def main():
                             # changes the selected tool to whatever tool is pressed
                             # fill/bucket tool
                             elif (mouse_pos[0] >= 116 and mouse_pos[0] <= 180) and (mouse_pos[1] >= 478 and mouse_pos[1] <= 541):
-                                tool_selected = FILL
+                                if tool_selected == FILL:
+                                    tool_selected = AUTO_FILL
+                                else:
+                                    tool_selected = FILL
                             # pen tool
                             elif (mouse_pos[0] >= 26 and mouse_pos[0] <= 89) and (mouse_pos[1] >= 478 and mouse_pos[1] <= 541):
                                 tool_selected = PEN
@@ -496,7 +545,7 @@ def main():
                 slider_change = NO_COLOUR
                 out_of_range = slider_change2
 
-        screen.fill((45, 52, 92))
+        SCREEN.fill((45, 52, 92))
         pygame.display.set_caption('Sprite Map Maker')
 
         if mouse_pos == None:
@@ -513,28 +562,28 @@ def main():
             if t == -30:
                 saved_text = False
                 t = 255
-            draw_opacity_text(screen, 900, 20, "saved!", (0, 0, 0), 40, opacity)
+            draw_opacity_text(900, 20, "saved!", (0, 0, 0), 40, opacity)
 
         if trying_delete and not saved_text:
-            draw_centered_text(screen, 1000, 20, "press command +", (0, 0, 0), 20)
-            draw_centered_text(screen, 1000, 40, "delete again to confirm", (0, 0, 0), 20)
-            draw_centered_text(screen, 1000, 60, "delete or let go of", (0, 0, 0), 20)
-            draw_centered_text(screen, 1000, 80, "command to cancel", (0, 0, 0), 20)
+            draw_centered_text(1000, 20, "press command +", (0, 0, 0), 20)
+            draw_centered_text(1000, 40, "delete again to confirm", (0, 0, 0), 20)
+            draw_centered_text(1000, 60, "delete or let go of", (0, 0, 0), 20)
+            draw_centered_text(1000, 80, "command to cancel", (0, 0, 0), 20)
 
         # draws the currently selected colour in a box below the side grid
-        draw_rect(screen, 75, 370, (244, 234, 87), 60, 60)
-        draw_rect(screen, 80, 375, current_colour, 50, 50)
+        draw_rect(75, 370, (244, 234, 87), 60, 60)
+        draw_rect(80, 375, current_colour, 50, 50)
 
         # draws the colour bars
-        slider_red_pos, slider_green_pos, slider_blue_pos, current_colour = draw_colour_bar(slider_red_pos, slider_green_pos, slider_blue_pos, current_colour, mouse_pos, slider_change, screen, set_colour_change)
+        slider_red_pos, slider_green_pos, slider_blue_pos, current_colour = draw_colour_bar(slider_red_pos, slider_green_pos, slider_blue_pos, current_colour, mouse_pos, slider_change, set_colour_change)
 
         # draws the grids
-        sprite_map_maker_essential.main(colour_side_grid, current_colour, full_colour_grid, full_grid_length, screen, selected, SIDE_GRID_LENGTH)
+        sprite_map_maker_essential2.main(colour_side_grid, current_colour, full_colour_grid, FULL_GRID_LENGTH, SCREEN, selected, SIDE_GRID_LENGTH)
 
-        draw_brushes_and_set_colours(screen, SCREEN_WIDTH, brush_png, bucket_png, tool_selected)
+        draw_brushes_and_set_colours(access_file_name, tool_selected)
 
         pygame.display.update()
-
+        
     pygame.quit
 
 
