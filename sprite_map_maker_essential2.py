@@ -18,9 +18,38 @@ def set_file (full_colour_grid, file_created, file_name):
         file_name = python_obj['name']
         file_type = python_obj['type']
     else:
-        file_name = input("input name for the file\n")
-        print("")
-        file_type = input("input file type\n")
+        tryingname = True
+        while tryingname:
+            possible_file_name = input("input name for the file\n")
+            if possible_file_name == "exit":
+                return "exit"
+            if possible_file_name == "" or len(possible_file_name) > 25:
+                print("error. len limit is 25 min is 1")
+            else:
+                tryingname = False
+        file_name = possible_file_name
+
+        tryingtype = True
+        while tryingtype:
+            print("")
+            possible_type = input("input file type\n")
+
+            if possible_type == "json":
+                tryingtype = False
+
+            elif possible_type == "exit":
+                return "exit"
+            
+            elif len(possible_type) > 25 or possible_type == "":
+                print("error. len limit is 25 min is 1")
+
+            else:
+                print("error. only current compatible format is json.")
+
+
+
+        file_type = possible_type
+        
 
     # defines the new contents
     map = {
