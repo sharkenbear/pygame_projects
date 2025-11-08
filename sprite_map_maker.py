@@ -225,34 +225,24 @@ def draw_colour_bar(slider_pos_red, slider_pos_green, slider_pos_blue, current_c
 
 def draw_brushes_and_set_colours(access_file_name, tool_selected):
 
+    pen_colour = (80, 109, 136)
+    bucket_colour = (80, 109, 136)
+    colour_picker_colour = (80, 109, 136)
+    brush_colour = (80, 109, 136)
+
     if tool_selected == PEN:
         pen_colour = (136, 10, 232)
-        bucket_colour = (80, 109, 136)
-        colour_picker_colour = (80, 109, 136)
-        brush_colour = (80, 109, 136)
 
     elif tool_selected == AUTO_FILL:
-        pen_colour = (80, 109, 136)
         bucket_colour = (0, 192, 192)
-        colour_picker_colour = (80, 109, 136)
-        brush_colour = (80, 109, 136)
 
     elif tool_selected == FILL:
-        pen_colour = (80, 109, 136)
         bucket_colour = (136, 10, 232)
-        colour_picker_colour = (80, 109, 136)
-        brush_colour = (80, 109, 136)
     
     elif tool_selected == COLOUR_PICKER:
-        pen_colour = (80, 109, 136)
-        bucket_colour = (80, 109, 136)
         colour_picker_colour = (136, 10, 232)
-        brush_colour = (80, 109, 136)
 
     elif tool_selected == BRUSH:
-        pen_colour = (80, 109, 136)
-        bucket_colour = (80, 109, 136)
-        colour_picker_colour = (80, 109, 136)
         brush_colour = (136, 10, 232)
 
     # draws the boxes around the tools
