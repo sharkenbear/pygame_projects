@@ -2,6 +2,7 @@ import os
 import json
 import pygame
 from icecream import ic
+import time
 
 import sprite_map_maker_essential2
 
@@ -141,18 +142,21 @@ def draw_sprite(access_file_name, selected, x, y, pixel_length, background_colou
                 if checked == 125:
                     draw_rect(x + x2*pixel_length, y + y2*pixel_length, grid[x2][y2], pixel_length, pixel_length)
 
-def save_map(full_colour_grid, file_created, file_name, opacity, t, saved_text):
-    possible_name = sprite_map_maker_essential2.set_file(full_colour_grid, file_created, file_name)
+def man_save_map(full_colour_grid, file_created, file_name, opacity, t, saved_text):
+    possible_full_name, possible_name, possible_type = sprite_map_maker_essential2.set_file(full_colour_grid, file_created, file_name)
 
-    if possible_name != "exit":
-        file_name = possible_name
-        print("saved to ", sprite_map_maker_essential2.remove_imperfections(file_name), "!", sep="")
+    if possible_full_name != "exit":
         opacity = 255
         t = 255
         saved_text = True
+        return opacity, t, saved_text, possible_name, possible_type, possible_full_name
     else:
         print("exited")
-    return opacity, t, saved_text
+    return opacity, t, saved_text, None, None, possible_full_name
+
+def auto_save_map(full_colour_grid, file_created, file_name, opacity, t, saved_text):
+    sprite_map_maker_essential2.set_file(full_colour_grid, file_created, file_name, "auto")
+    return opacity, t, saved_text, None, None
 
 def draw_opacity_text(x, y, text, colour, font_size, opacity = 255):
     font = pygame.font.SysFont('arial', font_size)
@@ -359,6 +363,10 @@ def main():
     # foldable list of general variables
     if True:
 
+        clock = pygame.time.Clock()
+
+        t2 = 0
+
         out_of_range = NO_COLOUR
 
         # defines the colour slider variables      
@@ -417,8 +425,8 @@ def main():
                     file_name = input("if you wish to load a file enter its name, such as 'file.json'.\n")
                 if os.path.exists(file_name):
                     resolved = True
-                    if loading == STARTING:
-                        file_created = True
+                    # if loading == STARTING:
+                    file_created = True
                 elif file_name == "new file":
                     resolved = True
                     if loading == STARTING:
@@ -431,7 +439,7 @@ def main():
                     file_created = False
                 else:
                     print("error, please try again")
-            if file_created or loading == REDOING:
+            if file_created:
                 with open(file_name, 'r') as file:
                     python_obj = json.load(file)
                     full_colour_grid = python_obj['contents']
@@ -440,6 +448,10 @@ def main():
                         colour_side_grid[num][num2] = full_colour_grid[num][num2]
             loading = STOPPED
         if running:
+            t2 = t2 + 1
+            if t2 == 1500:
+                auto_save_map(full_colour_grid, file_created, file_name, opacity, t, saved_text)
+                t2 = 0
             mouse_pos = None
             set_colour_change = None
 
@@ -456,8 +468,11 @@ def main():
                         cmd = True
                     
                     if cmd and event.key == pygame.K_s:
-                        opacity, t, saved_text = save_map(full_colour_grid, file_created, file_name, opacity, t, saved_text)
-                    
+                        opacity, t, saved_text, possible_name, possible_type, possible_full_name = man_save_map(full_colour_grid, file_created, file_name, opacity, t, saved_text)
+                        if possible_type != None and possible_name != None:
+                            file_name = possible_name
+                            print("saved to ", sprite_map_maker_essential2.remove_imperfections(possible_full_name), "!", sep="")
+
                     if cmd and event.key == pygame.K_l:
                         loading = REDOING
 
@@ -523,7 +538,6 @@ def main():
                                             full_colour_grid[selec_row + num][selec_col + num2] = current_colour
                             
                             if not drawing:
-                                print (mouse_pos)
                                 # changes the current sprite selected
                                 if (mouse_pos[0] >= 221 and mouse_pos[0] <= 860) and (mouse_pos[1] >= 23 and mouse_pos[1] <= 660):
                                     collider_row = int((mouse_pos[0] - 221) / 80)
@@ -544,7 +558,6 @@ def main():
                                     selec_row = selected[0] * SPRITE_LENGTH
                                     selec_col = selected[1] * SPRITE_LENGTH
                                     for num in range(0, SPRITE_LENGTH):
-                                        print
                                         for num2 in range(0, SPRITE_LENGTH):
                                             full_colour_grid[selec_row + num][selec_col + num2] = (0, 0, 0)
                                 
@@ -665,6 +678,8 @@ def main():
                     saved_text = False
                     t = 255
                 draw_opacity_text(900, 20, "saved!", (0, 0, 0), 40, opacity)
+            
+            print
 
             if trying_delete and not saved_text:
                 draw_centered_text(1000, 20, "press command +", (0, 0, 0), 20)
@@ -683,7 +698,7 @@ def main():
             sprite_map_maker_essential2.main(colour_side_grid, current_colour, full_colour_grid, FULL_GRID_LENGTH, SCREEN, selected, SIDE_GRID_LENGTH)
 
             draw_brushes_and_set_colours(access_file_name, tool_selected)
-
+            clock.tick(30)
             pygame.display.update()
             
         pygame.quit
