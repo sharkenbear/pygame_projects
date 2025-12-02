@@ -668,8 +668,6 @@ def main():
                     saved_text = False
                     t = 255
                 draw_opacity_text(900, 20, "saved!", (0, 0, 0), 40, opacity)
-            
-            print
 
             if trying_delete and not saved_text:
                 draw_centered_text(1000, 20, "press command +", (0, 0, 0), 20)

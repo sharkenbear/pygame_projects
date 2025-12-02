@@ -259,6 +259,8 @@ def main():
         # number of apples currently eaten
         num_eaten = 0
         t = 0
+        # number of apples that will be on screen at any given time
+        num_apples = 1
 
     # while loop
     running = True
@@ -290,16 +292,16 @@ def main():
             # takes inputs only if player is in the playing state
             if state == PLAYING_STATE:
                 # sets the direction variable to different things depending on what keys are pressed
-                if key[pygame.K_DOWN] and direction != UP_DIRECTION:
+                if (key[pygame.K_DOWN] or key[pygame.K_s]) and direction != UP_DIRECTION:
                     input_ = DOWN_DIRECTION
                 
-                if key[pygame.K_UP] and direction != DOWN_DIRECTION:
+                if (key[pygame.K_UP] or key[pygame.K_w]) and direction != DOWN_DIRECTION:
                     input_ = UP_DIRECTION
 
-                if key[pygame.K_RIGHT] and direction != LEFT_DIRECTION:
+                if (key[pygame.K_RIGHT] or key[pygame.K_d]) and direction != LEFT_DIRECTION:
                     input_ = RIGHT_DIRECTION
 
-                if key[pygame.K_LEFT] and direction != RIGHT_DIRECTION and direction != NOWHERE_DIRECTION:
+                if (key[pygame.K_LEFT] or key[pygame.K_a]) and direction != RIGHT_DIRECTION and direction != NOWHERE_DIRECTION:
                     input_ = LEFT_DIRECTION
 
             # takes inputs only if player is in the lost state
