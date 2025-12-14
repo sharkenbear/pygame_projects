@@ -7,9 +7,11 @@ pygame.init()
 def remove_imperfections(word):
     return str(word).replace(" ", "").replace("'", "").replace(",", "").replace("(", "").replace(")", "").replace(":", "")
 
-def set_file (full_colour_grid, file_created, file_name):
+def set_file (full_colour_grid, file_created, file_name, save_type = "manual"):
 
     # read JSON file and parse contents
+
+    saving = False
         
     if file_created:
         with open(file_name, 'r') as file:
@@ -17,7 +19,9 @@ def set_file (full_colour_grid, file_created, file_name):
 
         file_name = python_obj['name']
         file_type = python_obj['type']
-    else:
+        saving = True
+    
+    elif save_type == "manual":
         tryingname = True
         while tryingname:
             possible_file_name = input("input name for the file\n")
@@ -27,6 +31,7 @@ def set_file (full_colour_grid, file_created, file_name):
                 print("error. len limit is 25 min is 1")
             else:
                 tryingname = False
+        
         file_name = possible_file_name
 
         tryingtype = True
@@ -45,25 +50,25 @@ def set_file (full_colour_grid, file_created, file_name):
 
             else:
                 print("error. only current compatible format is json.")
-
-
-
-        file_type = possible_type
         
+        file_type = possible_type
+        saving = False
 
-    # defines the new contents
-    map = {
-            "name" : file_name,
-            "type" : file_type,
-            "contents" : full_colour_grid
-        }
+    if save_type == "manual" or saving:
+        # defines the new contents
+        map = {
+                "name" : file_name,
+                "type" : file_type,
+                "contents" : full_colour_grid
+            }
 
-    # dumps the new contents to the file
-    file_full_name = str(file_name).replace(" ", "_"), '.', file_type
+        # dumps the new contents to the file
+        file_full_name = str(file_name).replace(" ", "_"), '.', file_type
 
-    with open(remove_imperfections(file_full_name), 'w') as file:
-        json.dump(map, file)
-    return file_full_name
+        with open(remove_imperfections(file_full_name), 'w') as file:
+            json.dump(map, file)
+            print("saved")
+        return file_full_name, file_name, file_type
 
 def display_side_grid(grid, grid_length, deepness, screen, steepness):
     for row in range(0, 8):
