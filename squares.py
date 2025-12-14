@@ -4,36 +4,6 @@ import math
 
 pygame.init()
 
-find_diagonal_num = {
-    8: 7,
-    9: 6,
-    10: 5,
-    11: 4,
-    12: 3,
-    13: 2,
-    14: 1,
-    15: 0,
-}
-
-rgb_flip = {
-    0: 15,
-    1: 14,
-    2: 13,
-    3: 12,
-    4: 11,
-    5: 10,
-    6: 9,
-    7: 8,
-    8: 7,
-    9: 6,
-    10: 5,
-    11: 4,
-    12: 3,
-    13: 2,
-    14: 1,
-    15: 0
-}
-
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 800
 NUM_WIDTH = SCREEN_WIDTH / 50 - 1
@@ -46,13 +16,6 @@ def is_even(num):
     if num2 == num3:
         return True
     return False
-
-def convert_range(original_num, in_tuple):
-    in_min, in_max, out_min, out_max = in_tuple
-    old_range = (in_max - in_min)
-    NewRange = (out_max - out_min)
-
-    return int((((original_num - in_min) * NewRange) / old_range) + out_min)
 
 def draw_square(r_change, g_change, b_change):
 
@@ -93,8 +56,6 @@ def main():
     t = 0
     t2 = random.uniform(0, 2)
 
-    print(convert_range(3, (0, 10, 10, 0)))
-
     r_change = 0
     g_change = 0
     b_change = 0
@@ -103,15 +64,18 @@ def main():
     rand = False
     rand_run = True
 
+    clock_num = 1000
+
     SCREEN.fill((255, 255, 255))
 
     running = True
     while running:
         if rand_run:
             rand_int = rand_int + 1
-        #     if rand_int == 1800:
-        #         rand = True
-        #         rand_run = False
+            # if rand_int == 1800:
+            #     clock_num = 30
+            #     rand = True
+            #     rand_run = False
 
         t = t + 1
         if t < 15:
@@ -138,10 +102,6 @@ def main():
         
         if (new_square and rand) or (True and not rand):
 
-            r_change = 0
-            g_change = 0
-            b_change = 0
-
             blue = -3.1
             green = -1.5
             red = 0
@@ -152,7 +112,7 @@ def main():
 
             draw_square(r_change, g_change, b_change)
 
-        # clock.tick(30)
+        clock.tick(clock_num)
         pygame.display.flip()
     pygame.quit
 
