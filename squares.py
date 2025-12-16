@@ -10,13 +10,6 @@ NUM_WIDTH = SCREEN_WIDTH / 50 - 1
 NUM_HEIGHT = SCREEN_HEIGHT / 50 - 1
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
-def is_even(num):
-    num2 = num / 2
-    num3 = int(num / 2)
-    if num2 == num3:
-        return True
-    return False
-
 def draw_square(r_change, g_change, b_change):
 
     x = random.randint(0, 15)
@@ -55,10 +48,6 @@ def main():
 
     t = 0
     t2 = random.uniform(0, 2)
-
-    r_change = 0
-    g_change = 0
-    b_change = 0
 
     rand_int = 0
     rand = False
@@ -106,9 +95,9 @@ def main():
             green = -1.5
             red = 0
 
-            r_change = math.cos(t2+red) * 100
-            g_change = math.cos(t2+green) * 100
-            b_change = math.cos(t2+blue) * 100
+            r_change = math.sin(t2+red) * 100
+            g_change = math.sin(t2+green) * 100
+            b_change = math.sin(t2+blue) * 100
 
             draw_square(r_change, g_change, b_change)
 
