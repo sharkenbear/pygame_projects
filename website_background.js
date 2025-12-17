@@ -61,13 +61,14 @@ function draw() {
 
   if (rand_run) {
     rand_int = rand_int + 1;
-    if (rand_int == 1800) {
+    max = width + height;
+    if (rand_int == max * 60) {
     rand = true;
     rand_run = false;
     }
   }
   t = t + 1;
-  if (t < 30) {
+  if (t < 15) {
     new_square = false;
   }
   else {
