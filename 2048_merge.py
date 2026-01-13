@@ -131,21 +131,6 @@ def win_game(board):
 #                         place = place + 1
 #                         print(board[cc][r])
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 def move(board, direction):
     place = False
     score = 0
@@ -221,90 +206,6 @@ def move(board, direction):
 
     return [place, score]
 
-
-
-
-# def move_up(board):
-#     place = False
-#     score = 0
-    # for x in range(0, 4):
-    #     can_merge = True
-    #     for _ in range(0, 4):
-    #         for y in range(3, 0, -1):
-    #             if board[y][x] != 0:
-    #                 if board[y-1][x] == 0:
-    #                     board[y-1][x] = board[y][x]
-    #                     board[y][x] = 0
-    #                     place = True
-    #                 elif board[y-1][x] == board[y][x] and can_merge:
-    #                     board[y-1][x] = board[y][x] * 2
-    #                     board[y][x] = 0
-#                         can_merge = False
-#                         place = True
-#                         score = score + board[y-1][x]
-#     return [place, score]
-
-# def move_down(board):
-    # place = False
-    # score = 0
-    # for x in range(0, 4):
-    #     can_merge = True
-    #     for _ in range(0, 4):
-    #         for y in range(0, 3, 1):
-    #             if board[y][x] != 0:
-    #                 if board[y+1][x] == 0:
-    #                     board[y+1][x] = board[y][x]
-    #                     board[y][x] = 0
-    #                     place = True
-    #                 elif board[y+1][x] == board[y][x] and can_merge:
-    #                     board[y+1][x] = board[y][x] * 2
-    #                     board[y][x] = 0
-#                         can_merge = False
-#                         place = True
-#                         score = score + board[y+1][x]
-#     return [place, score]
-
-# def move_left(board):
-#     place = False
-#     score = 0
-#     for y in range(0,4):
-#         can_merge = True
-#         for _ in range(0,4):
-#             for x in range(3,0, -1):
-#                 if board[y][x] != 0:
-#                     if board[y][x-1] == 0:
-#                         board[y][x-1] = board[y][x]
-#                         board[y][x] = 0
-#                         place = True
-#                     elif board[y][x-1] == board[y][x] and can_merge:
-#                         board[y][x-1] = board[y][x]*2
-#                         board[y][x] = 0
-#                         can_merge = False
-#                         place = True
-#                         score = score + board[y][x-1]
-
-#     return [place, score]
-
-# def move_right(board):
-#     place = False
-#     score = 0
-#     for y in range(0,4):
-#         can_merge = True
-#         for _ in range(0,4):
-#             for x in range(0,3, 1):
-#                 if board[y][x] != 0:
-#                     if board[y][x+1] == 0:
-#                         board[y][x+1] = board[y][x]
-#                         board[y][x] = 0
-#                         place = True
-#                     elif board[y][x+1] == board[y][x] and can_merge:
-#                         board[y][x+1] = board[y][x]*2
-#                         board[y][x] = 0
-#                         can_merge = False
-#                         place = True
-#                         score = score + board[y][x+1]
-#     return [place, score]
-
 def main():
     background_colour = 0, 0, 50
 
@@ -347,44 +248,19 @@ def main():
                 if score > 0:
                     print("score:" + str(score))
                     score = 0
+                    
             if not end:
                 if key[pygame.K_w] or key[pygame.K_UP]:
-                    moved = True
                     direction = "up"
 
                 elif key[pygame.K_a] or key[pygame.K_LEFT]:
-                    moved = True
                     direction = "left"
                 
                 elif key[pygame.K_s] or key[pygame.K_DOWN]:
-                    moved = True
                     direction = "down"
                 
                 elif key[pygame.K_d] or key[pygame.K_RIGHT]:
-                    moved = True
                     direction = "right"
-
-                # if key[pygame.K_w] or key[pygame.K_UP]:
-                #     p, s = move_up(board)
-                #     if p:
-                #         place_num(board)
-                #     score = score + s
-                # elif key[pygame.K_a] or key[pygame.K_LEFT]:
-                #     p, s = move_left(board)
-                #     if p:
-                #         place_num(board)
-                #     score = score + s
-
-                # if key[pygame.K_d] or key[pygame.K_RIGHT]:
-                #     p, s = move_right(board)
-                #     if p:
-                #         place_num(board)
-                #     score = score + s
-                # if key[pygame.K_s] or key[pygame.K_DOWN]:
-                #     p, s = move_down(board)
-                #     if p:
-                #         place_num(board)
-                #     score = score + s
 
                 if direction != None:
                     p, s = move(board, direction)
